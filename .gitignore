@@ -1,0 +1,6 @@
+venv
+qr_image
+research_directions
+.idea
+*.pyc
+__pycache__/
