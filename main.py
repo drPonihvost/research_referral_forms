@@ -5,8 +5,7 @@ from PIL.ImageQt import ImageQt
 
 
 from PySide6.QtWidgets import QWidget, QApplication
-from PySide6.QtGui import QFont, QPixmap, QImage
-from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 from docxtpl import DocxTemplate, InlineImage
 from docx.shared import Mm
 

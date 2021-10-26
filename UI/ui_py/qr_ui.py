@@ -17,7 +17,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QDateEdit, QFormLayout, QHBoxLayout,
     QLabel, QLineEdit, QPlainTextEdit, QPushButton,
-    QSizePolicy, QVBoxLayout, QWidget)
+    QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -156,6 +156,10 @@ class Ui_Form(object):
         self.qr_label.setMaximumSize(QSize(350, 350))
 
         self.verticalLayout.addWidget(self.qr_label)
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout.addItem(self.verticalSpacer)
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
