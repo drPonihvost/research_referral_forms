@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtWidgets import QWidget, QApplication
+from PySide6.QtWidgets import QDialog, QApplication, QWidget
 
 from UI.ui_py.kusp_form import Ui_kusp_form
 from UI.ui_py.persona_referal_form import Ui_persona_referal_form
@@ -51,7 +51,7 @@ class RequisitionForm(QWidget, Ui_Form):
         }
 
 
-class PersonaReferralForm(QWidget, Ui_persona_referal_form):
+class PersonaReferralForm(QDialog, Ui_persona_referal_form):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -63,13 +63,13 @@ class PersonaReferralForm(QWidget, Ui_persona_referal_form):
         self.ud_rb.toggled.connect(self.set_event_type)
         self.kusp_rb.toggled.connect(self.set_event_type)
         self.req_rb.toggled.connect(self.set_event_type)
-        self.save_btn.clicked.connect(self.get_info)
-        self.cancel_btn.clicked.connect(self.cancel)
+        self.save_btn.clicked.connect(self.accept)
+        self.cancel_btn.clicked.connect(self.reject)
 
     def get_info(self):
         data = self.event_description_form.get_info_in_form()
         male = 'male' if self.male_rb.isChecked() else 'female'
-        self.info = {
+        info = {
             'action': 'accept',
             'surname': self.surname_le.text(),
             'name': self.name_le.text(),
@@ -79,9 +79,9 @@ class PersonaReferralForm(QWidget, Ui_persona_referal_form):
             'birthplace': self.birthplace_le.text(),
             'plot': self.plot_te.toPlainText()
         }
-        self.info.update(data)
-        print(self.info)
-        self.close()
+        info.update(data)
+        return info
+
 
     def cancel(self):
         self.info = {
