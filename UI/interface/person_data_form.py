@@ -1,6 +1,4 @@
-import sys
-
-from PySide6.QtWidgets import QDialog, QApplication, QWidget
+from PySide6.QtWidgets import QDialog, QWidget
 
 from UI.ui_py.kusp_form import Ui_kusp_form
 from UI.ui_py.persona_referal_form import Ui_persona_referal_form
@@ -57,7 +55,6 @@ class PersonaReferralForm(QDialog, Ui_persona_referal_form):
         self.setupUi(self)
         self.event_description_form = None
         self.set_event_type()
-        self.info = {}
 
         # signals
         self.ud_rb.toggled.connect(self.set_event_type)
@@ -67,10 +64,10 @@ class PersonaReferralForm(QDialog, Ui_persona_referal_form):
         self.cancel_btn.clicked.connect(self.reject)
 
     def get_info(self):
+
         data = self.event_description_form.get_info_in_form()
         male = 'male' if self.male_rb.isChecked() else 'female'
         info = {
-            'action': 'accept',
             'surname': self.surname_le.text(),
             'name': self.name_le.text(),
             'middle_name': self.middle_name_le.text(),
@@ -80,15 +77,13 @@ class PersonaReferralForm(QDialog, Ui_persona_referal_form):
             'plot': self.plot_te.toPlainText()
         }
         info.update(data)
+        # self.surname_le.clear()
+        # self.name_le.clear()
+        # self.middle_name_le.clear()
+        # self.date_of_birth_de.clear()
+        # self.birthplace_le.clear()
+        # self.plot_te.clear()
         return info
-
-
-    def cancel(self):
-        self.info = {
-            'action': 'cancel'
-        }
-        print(self.info)
-        self.close()
 
     def set_event_type(self):
         for i in reversed(range(self.event_lo.count())):
@@ -100,7 +95,6 @@ class PersonaReferralForm(QDialog, Ui_persona_referal_form):
         elif self.req_rb.isChecked():
             self.event_description_form = RequisitionForm()
         self.event_lo.addWidget(self.event_description_form)
-
 
 # if __name__ == "__main__":
 #     app = QApplication(sys.argv)

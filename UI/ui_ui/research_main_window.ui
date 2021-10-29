@@ -12,7 +12,6 @@
   </property>
   <property name="font">
    <font>
-    <family>Calibri</family>
     <pointsize>10</pointsize>
    </font>
   </property>
@@ -58,11 +57,6 @@
       <column>
        <property name="text">
         <string>Фамилия</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Новый столбец</string>
        </property>
       </column>
       <column>
