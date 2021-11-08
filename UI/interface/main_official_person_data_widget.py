@@ -2,22 +2,10 @@ import sys
 
 from PySide6.QtWidgets import QApplication, QWidget, QDialog, QTableWidgetItem, QAbstractItemView
 
+from data_base.models import *
 from UI.ui_py.create_official_person_dialog import Ui_create_official_person_dialog
 from UI.ui_py.official_person_choice_dialog import Ui_official_person_choice
 from UI.ui_py.official_person_data_widget import Ui_official_person_data
-
-n = '1'
-
-data = dict(
-    department='ЭКЦ МВД по Республике Хакасия',
-    post='Начальник',
-    rank='полковник полиции',
-    name='Лысенко Т.М.'
-)
-
-official_person = {
-    n: data
-}
 
 
 class CreateOfficialPersonDialog(QDialog, Ui_create_official_person_dialog):
@@ -34,7 +22,9 @@ class CreateOfficialPersonDialog(QDialog, Ui_create_official_person_dialog):
             'department': self.department_te.toPlainText(),
             'post': self.post_te.toPlainText(),
             'rank': self.rank_le.text(),
-            'name': self.name_le.text()
+            'surname': self.surname_le.text(),
+            'name': self.name_le.text(),
+            'middle_name': self.middle_name_le.text()
         }
 
 
@@ -56,24 +46,36 @@ class OfficialPersonChoice(QDialog, QWidget, Ui_official_person_choice):
 
     def form_table(self):
         self.official_person_tw.setRowCount(0)
-        if official_person:
-            for key, value in official_person.items():
+        off_person = session.query(Addressees).all()
+        print(f'Результат выборки {off_person}')
+        if off_person:
+            for i in off_person:
                 row_position = self.official_person_tw.rowCount()
                 self.official_person_tw.insertRow(row_position)
-                self.official_person_tw.setItem(row_position, 0, QTableWidgetItem(key))
-                self.official_person_tw.setItem(row_position, 1, QTableWidgetItem(value['name']))
-                self.official_person_tw.setItem(row_position, 2, QTableWidgetItem(value['post']))
-                self.official_person_tw.setItem(row_position, 3, QTableWidgetItem(value['department']))
-                self.official_person_tw.setItem(row_position, 4, QTableWidgetItem(value['rank']))
+                self.official_person_tw.setItem(row_position, 0, QTableWidgetItem(i.id))
+                self.official_person_tw.setItem(row_position, 1, QTableWidgetItem(i.name))
+                self.official_person_tw.setItem(row_position, 2, QTableWidgetItem(i.post))
+                self.official_person_tw.setItem(row_position, 3, QTableWidgetItem(i.department))
+                self.official_person_tw.setItem(row_position, 4, QTableWidgetItem(i.rank))
+
+
+            # for key, value in official_person.items():
+            #     row_position = self.official_person_tw.rowCount()
+            #     self.official_person_tw.insertRow(row_position)
+            #     self.official_person_tw.setItem(row_position, 0, QTableWidgetItem(key))
+            #     self.official_person_tw.setItem(row_position, 1, QTableWidgetItem(value['name']))
+            #     self.official_person_tw.setItem(row_position, 2, QTableWidgetItem(value['post']))
+            #     self.official_person_tw.setItem(row_position, 3, QTableWidgetItem(value['department']))
+            #     self.official_person_tw.setItem(row_position, 4, QTableWidgetItem(value['rank']))
 
     def add_official_person(self):
         self.create_person_widget = CreateOfficialPersonDialog()
         event = self.create_person_widget.exec()
         if event:
-            global n
-            n = str(int(n) + 1)
-            official_person[n] = self.create_person_widget.get_data()
-            self.form_table()
+            data = self.create_person_widget.get_data()
+
+            official_person = Addressees(**data)
+            official_person.save()
 
     def change_official_person(self):
         item_id = self.get_item_id()
@@ -85,7 +87,6 @@ class OfficialPersonChoice(QDialog, QWidget, Ui_official_person_choice):
         event = self.create_person_widget.exec()
         if event:
             official_person[item_id] = self.create_person_widget.get_data()
-            print(official_person)
             self.form_table()
 
     def delete_official_person(self):
