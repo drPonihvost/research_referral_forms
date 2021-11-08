@@ -77,12 +77,6 @@ class PersonaReferralForm(QDialog, Ui_persona_referal_form):
             'plot': self.plot_te.toPlainText()
         }
         info.update(data)
-        # self.surname_le.clear()
-        # self.name_le.clear()
-        # self.middle_name_le.clear()
-        # self.date_of_birth_de.clear()
-        # self.birthplace_le.clear()
-        # self.plot_te.clear()
         return info
 
     def set_event_type(self):
