@@ -1,6 +1,7 @@
 from data_base.models import *
 
-create_db()
+Base.metadata.drop_all(engine)
+init_db()
 
 addressees = Addressees(
     department='ЭКЦ МВД по Республике Хакасия',

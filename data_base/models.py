@@ -3,16 +3,17 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
 DATABASE_NAME = 'test_db.db'
-PATH = 'data_base'
+PATH = r'C:\Users\kudro\Desktop\PySide6\research_referral_forms\data_base'
 
-engine = create_engine(f'sqlite:///{PATH}/{DATABASE_NAME}', echo=True)
+engine = create_engine(f'sqlite:///{PATH}\{DATABASE_NAME}', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
 Base = declarative_base()
 
-def create_db():
-    Base.metadata.create_all(engine)
+
+
+
 
 
 class BaseDBModel(Base):
@@ -89,12 +90,12 @@ class OfficialPersonDBModel(PersonDBModel):
         self.department = department
 
     def __repr__(self):
-        return f'{self.surname} {self.name} {self.middle_name} {self.post} {self.rank} {self.department}'
+        return f'{self.id} {self.surname} {self.name} {self.middle_name} {self.post} {self.rank} {self.department}'
+
 
     @classmethod
     def get_all_name(cls):
-        session.query(cls).all()
-
+        return session.query(cls).all()
 
 
 class Initiator(OfficialPersonDBModel):
@@ -170,3 +171,9 @@ class InspectionMaterial(BaseIncident):
     __tablename__ = 'inspection_material'
 
 
+
+def init_db():
+    Base.metadata.create_all(engine)
+
+if __name__ == '__main__':
+    init_db()
