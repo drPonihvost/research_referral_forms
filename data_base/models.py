@@ -1,19 +1,29 @@
+import inspect
+import os
+import sys
+
 from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
 DATABASE_NAME = 'test_db.db'
-PATH = r'C:\Users\kudro\Desktop\PySide6\research_referral_forms\data_base'
 
-engine = create_engine(f'sqlite:///{PATH}\{DATABASE_NAME}', echo=True)
+
+def get_script_dir(follow_symlinks=True):
+    if getattr(sys, 'frozen', False):
+        path = os.path.abspath(sys.executable)
+    else:
+        path = inspect.getabsfile(get_script_dir)
+    if follow_symlinks:
+        path = os.path.realpath(path)
+    return os.path.dirname(path)
+
+
+engine = create_engine(f'sqlite:///{get_script_dir()}\\{DATABASE_NAME}', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
 Base = declarative_base()
-
-
-
-
 
 
 class BaseDBModel(Base):
@@ -53,6 +63,10 @@ class ResearchDBModel(BaseDBModel):
     addressees = relationship('Addressees', backref='research')
     event = relationship('Event', backref='research')
 
+    @classmethod
+    def get_all(cls):
+        return session.query().all()
+
 
 class PersonDBModel(BaseDBModel):
     __abstract__ = True
@@ -64,6 +78,10 @@ class PersonDBModel(BaseDBModel):
         self.surname = surname
         self.name = name
         self.middle_name = middle_name
+
+    @classmethod
+    def get_by_id(cls, item_id):
+        return session.query(cls).get(item_id)
 
 
 class PersonToCheckDBModel(PersonDBModel):
@@ -92,10 +110,14 @@ class OfficialPersonDBModel(PersonDBModel):
     def __repr__(self):
         return f'{self.id} {self.surname} {self.name} {self.middle_name} {self.post} {self.rank} {self.department}'
 
-
     @classmethod
     def get_all_name(cls):
         return session.query(cls).all()
+
+
+
+    def create_name_reduction(self):
+        return f'{self.name[0].title()}.{self.middle_name[0].title()}. {self.surname}'
 
 
 class Initiator(OfficialPersonDBModel):
@@ -171,9 +193,9 @@ class InspectionMaterial(BaseIncident):
     __tablename__ = 'inspection_material'
 
 
-
 def init_db():
     Base.metadata.create_all(engine)
+
 
 if __name__ == '__main__':
     init_db()

@@ -1,4 +1,9 @@
+import os
+import sys
+import inspect
+
 from data_base.models import *
+
 
 Base.metadata.drop_all(engine)
 init_db()
