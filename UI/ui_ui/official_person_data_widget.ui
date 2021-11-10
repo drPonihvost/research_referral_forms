@@ -7,12 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>306</height>
+    <height>304</height>
    </rect>
   </property>
   <property name="font">
    <font>
-    <family>Arial</family>
     <pointsize>10</pointsize>
    </font>
   </property>
@@ -69,7 +68,20 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QLineEdit" name="rank_le"/>
+        <widget class="QLineEdit" name="rank_le">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>21</height>
+          </size>
+         </property>
+        </widget>
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_4">
@@ -79,13 +91,52 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLineEdit" name="name_le"/>
+        <widget class="QLineEdit" name="name_le">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>21</height>
+          </size>
+         </property>
+        </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QTextEdit" name="department_te"/>
+        <widget class="QTextEdit" name="department_te">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>209</width>
+           <height>73</height>
+          </size>
+         </property>
+        </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QTextEdit" name="post_te"/>
+        <widget class="QTextEdit" name="post_te">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>209</width>
+           <height>74</height>
+          </size>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>

@@ -23,9 +23,8 @@ class Ui_official_person_data(object):
     def setupUi(self, official_person_data):
         if not official_person_data.objectName():
             official_person_data.setObjectName(u"official_person_data")
-        official_person_data.resize(320, 306)
+        official_person_data.resize(320, 304)
         font = QFont()
-        font.setFamilies([u"Arial"])
         font.setPointSize(10)
         official_person_data.setFont(font)
         self.verticalLayout_2 = QVBoxLayout(official_person_data)
@@ -64,6 +63,12 @@ class Ui_official_person_data(object):
 
         self.rank_le = QLineEdit(official_person_data)
         self.rank_le.setObjectName(u"rank_le")
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.rank_le.sizePolicy().hasHeightForWidth())
+        self.rank_le.setSizePolicy(sizePolicy)
+        self.rank_le.setMaximumSize(QSize(150, 21))
 
         self.formLayout.setWidget(2, QFormLayout.FieldRole, self.rank_le)
 
@@ -74,16 +79,28 @@ class Ui_official_person_data(object):
 
         self.name_le = QLineEdit(official_person_data)
         self.name_le.setObjectName(u"name_le")
+        sizePolicy.setHeightForWidth(self.name_le.sizePolicy().hasHeightForWidth())
+        self.name_le.setSizePolicy(sizePolicy)
+        self.name_le.setMaximumSize(QSize(150, 21))
 
         self.formLayout.setWidget(3, QFormLayout.FieldRole, self.name_le)
 
         self.department_te = QTextEdit(official_person_data)
         self.department_te.setObjectName(u"department_te")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.department_te.sizePolicy().hasHeightForWidth())
+        self.department_te.setSizePolicy(sizePolicy1)
+        self.department_te.setMaximumSize(QSize(209, 73))
 
         self.formLayout.setWidget(0, QFormLayout.FieldRole, self.department_te)
 
         self.post_te = QTextEdit(official_person_data)
         self.post_te.setObjectName(u"post_te")
+        sizePolicy1.setHeightForWidth(self.post_te.sizePolicy().hasHeightForWidth())
+        self.post_te.setSizePolicy(sizePolicy1)
+        self.post_te.setMaximumSize(QSize(209, 74))
 
         self.formLayout.setWidget(1, QFormLayout.FieldRole, self.post_te)
 

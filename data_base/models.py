@@ -156,9 +156,10 @@ class Case(BaseDBModel):
     number = Column(String)
     formation_date = Column(DateTime)
 
-    def __init__(self, number, formation_date):
+    def __init__(self, number, formation_date, plot):
         self.number = number
         self.formation_date = formation_date
+        self.plot = plot
 
 
 class Requisition(Case):
@@ -169,13 +170,13 @@ class BaseIncident(Case):
     __abstract__ = True
     article = Column(String)
     address = Column(String)
-    incident = Column(Text)
+    plot = Column(Text)
 
-    def __init__(self, number, formation_date, article, address, incident):
-        super().__init__(number, formation_date)
+    def __init__(self, number, formation_date, plot, article, address):
+        super().__init__(number, formation_date, plot)
         self.article = article
         self.address = address
-        self.incident = incident
+        self.plot = plot
 
 
 class Criminal(BaseIncident):

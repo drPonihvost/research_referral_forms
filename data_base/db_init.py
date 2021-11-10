@@ -1,19 +1,29 @@
-import os
-import sys
-import inspect
-
 from data_base.models import *
-
 
 Base.metadata.drop_all(engine)
 init_db()
 
-addressees = Addressees(
+Addressees(
     department='ЭКЦ МВД по Республике Хакасия',
     post='Начальник',
     rank='полковник полиции',
     surname='Лысенко',
     name='Тимур',
     middle_name='Михайлович'
-)
-addressees.save()
+).save()
+Initiator(
+    department='ОМВД России по Таштыпскому району',
+    post='Начальник',
+    rank='полковник полиции',
+    surname='Грачев',
+    name='Александр',
+    middle_name='Александрович'
+).save()
+Executor(
+    department='ОУР ОМВД России по Таштыпскому району',
+    post='Оперуполномоченный',
+    rank='капитан полиции',
+    surname='Пупкин',
+    name='Василий',
+    middle_name='Васильевич'
+).save()

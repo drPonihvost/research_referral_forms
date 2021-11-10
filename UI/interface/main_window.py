@@ -80,12 +80,12 @@ class MainWindow(QMainWindow, Ui_research_main_window):
         event_data = dict(
             number=self.data['number'],
             formation_date=self.data['formation_date'],
+            plot=self.data['plot']
         )
         if self.data['case_category'] != 'requisition':
             event_data.update(
-                incident=self.data['item'],
                 address=self.data['address'],
-                article=self.data['number'],
+                article=self.data['item'],
             )
         event = Event(
             case_type=self.data['case_category']
