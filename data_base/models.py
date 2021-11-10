@@ -1,8 +1,9 @@
 import inspect
 import os
 import sys
+from datetime import datetime
 
-from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -49,15 +50,15 @@ class BaseDBModel(Base):
             session.commit()
 
 
-class ResearchDBModel(BaseDBModel):
+class Research(BaseDBModel):
     __tablename__ = 'research'
-    date_of_recording = Column(DateTime)
+    date_of_recording = Column(DateTime, default=datetime.utcnow)
     person_id = Column(Integer, ForeignKey('person_to_check.id'), nullable=False)
     initiator_id = Column(Integer, ForeignKey('initiator.id'), nullable=False)
     executor_id = Column(Integer, ForeignKey('executor.id'), nullable=False)
     addressees_id = Column(Integer, ForeignKey('addressees.id'), nullable=False)
     event_id = Column(Integer, ForeignKey('event.id'), nullable=False)
-    person = relationship('PersonToCheckDBModel', backref='research')
+    person = relationship('PersonToCheck', backref='research')
     initiator = relationship('Initiator', backref='research')
     executor = relationship('Executor', backref='research')
     addressees = relationship('Addressees', backref='research')
@@ -68,7 +69,7 @@ class ResearchDBModel(BaseDBModel):
         return session.query().all()
 
 
-class PersonDBModel(BaseDBModel):
+class Person(BaseDBModel):
     __abstract__ = True
     surname = Column(String)
     name = Column(String)
@@ -84,18 +85,20 @@ class PersonDBModel(BaseDBModel):
         return session.query(cls).get(item_id)
 
 
-class PersonToCheckDBModel(PersonDBModel):
+class PersonToCheck(Person):
     __tablename__ = 'person_to_check'
     birthday = Column(DateTime)
     birthplace = Column(String)
+    male = Column(Boolean, nullable=False)
 
-    def __init__(self, surname, name, middle_name, birthday, birthplace):
+    def __init__(self, surname, name, middle_name, birthday, birthplace, male):
         super().__init__(surname, name, middle_name)
         self.birthday = birthday
         self.birthplace = birthplace
+        self.male = male
 
 
-class OfficialPersonDBModel(PersonDBModel):
+class OfficialPerson(Person):
     __abstract__ = True
     post = Column(String)
     rank = Column(String)
@@ -114,21 +117,19 @@ class OfficialPersonDBModel(PersonDBModel):
     def get_all_name(cls):
         return session.query(cls).all()
 
-
-
     def create_name_reduction(self):
         return f'{self.name[0].title()}.{self.middle_name[0].title()}. {self.surname}'
 
 
-class Initiator(OfficialPersonDBModel):
+class Initiator(OfficialPerson):
     __tablename__ = 'initiator'
 
 
-class Executor(OfficialPersonDBModel):
+class Executor(OfficialPerson):
     __tablename__ = 'executor'
 
 
-class Addressees(OfficialPersonDBModel):
+class Addressees(OfficialPerson):
     __tablename__ = 'addressees'
 
 

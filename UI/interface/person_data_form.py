@@ -15,9 +15,9 @@ class CriminalCaseForm(QWidget, Ui_ud_form):
         return {
             'case_category': 'criminal',
             'number': self.number_cb.text(),
-            'formation_date': self.formation_date_le.text(),
+            'formation_date': self.formation_date_le.date().toPython(),
             'item': self.item_de.currentText(),
-            'address': self.number_cb_2.text()
+            'address': self.number_cb_2.text(),
         }
 
 
@@ -30,7 +30,7 @@ class IncidentForm(QWidget, Ui_kusp_form):
         return {
             'case_category': 'incident',
             'number': self.number_cb.text(),
-            'formation_date': self.formation_date_le.text(),
+            'formation_date': self.formation_date_le.date().toPython(),
             'item': self.item_de.currentText(),
             'address': self.number_cb_2.text()
         }
@@ -45,7 +45,7 @@ class RequisitionForm(QWidget, Ui_Form):
         return {
             'case_category': 'requisition',
             'number': self.number_cb.text(),
-            'formation_date': self.formation_date_le.text(),
+            'formation_date': self.formation_date_le.date().toPython(),
         }
 
 
@@ -66,16 +66,15 @@ class PersonaReferralForm(QDialog, Ui_persona_referal_form):
     def get_info(self):
 
         data = self.event_description_form.get_info_in_form()
-        male = 'male' if self.male_rb.isChecked() else 'female'
-        info = {
-            'surname': self.surname_le.text(),
-            'name': self.name_le.text(),
-            'middle_name': self.middle_name_le.text(),
-            'male': male,
-            'date_of_birth': self.date_of_birth_de.text(),
-            'birthplace': self.birthplace_le.text(),
-            'plot': self.plot_te.toPlainText()
-        }
+        info = dict(
+            surname=self.surname_le.text(),
+            name=self.name_le.text(),
+            middle_name=self.middle_name_le.text(),
+            male=self.male_rb.isChecked(),
+            date_of_birth=self.date_of_birth_de.date().toPython(),
+            birthplace=self.birthplace_le.text(),
+            plot=self.plot_te.toPlainText()
+        )
         info.update(data)
         return info
 

@@ -133,6 +133,7 @@ class OfficialPersonData(QWidget, Ui_official_person_data):
             executor=Executor,
             initiator=Initiator
         )
+        self.official_person_id = None
         self.setupUi(self)
         if role == 'addressees':
             self.oficial_person_lb.setText('Адресат')
@@ -149,11 +150,10 @@ class OfficialPersonData(QWidget, Ui_official_person_data):
     def select_person_widget_call(self):
         self.select_person_widget = OfficialPersonChoice(self.role)
         event = self.select_person_widget.exec()
-        print(self.table[self.role].get_all_name())
         if event:
-            item_id = int(self.select_person_widget.get_item_id())
+            self.official_person_id = int(self.select_person_widget.get_item_id())
             table = self.table[self.role]
-            item = table.get_by_id(item_id)
+            item = table.get_by_id(self.official_person_id)
             self.department_te.setText(item.department)
             self.post_te.setText(item.post)
             self.rank_le.setText(item.rank)
