@@ -44,6 +44,16 @@ class Ui_research_main_window(object):
 
         self.horizontalLayout.addWidget(self.add_person)
 
+        self.change_pb = QPushButton(self.centralwidget)
+        self.change_pb.setObjectName(u"change_pb")
+
+        self.horizontalLayout.addWidget(self.change_pb)
+
+        self.form_pb = QPushButton(self.centralwidget)
+        self.form_pb.setObjectName(u"form_pb")
+
+        self.horizontalLayout.addWidget(self.form_pb)
+
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
@@ -66,8 +76,8 @@ class Ui_research_main_window(object):
         self.verticalLayout.addLayout(self.horizontalLayout_2)
 
         self.research_person_table_tw = QTableWidget(self.centralwidget)
-        if (self.research_person_table_tw.columnCount() < 8):
-            self.research_person_table_tw.setColumnCount(8)
+        if (self.research_person_table_tw.columnCount() < 10):
+            self.research_person_table_tw.setColumnCount(10)
         __qtablewidgetitem = QTableWidgetItem()
         __qtablewidgetitem.setFont(font);
         self.research_person_table_tw.setHorizontalHeaderItem(0, __qtablewidgetitem)
@@ -85,10 +95,16 @@ class Ui_research_main_window(object):
         self.research_person_table_tw.setHorizontalHeaderItem(6, __qtablewidgetitem6)
         __qtablewidgetitem7 = QTableWidgetItem()
         self.research_person_table_tw.setHorizontalHeaderItem(7, __qtablewidgetitem7)
+        __qtablewidgetitem8 = QTableWidgetItem()
+        self.research_person_table_tw.setHorizontalHeaderItem(8, __qtablewidgetitem8)
+        __qtablewidgetitem9 = QTableWidgetItem()
+        self.research_person_table_tw.setHorizontalHeaderItem(9, __qtablewidgetitem9)
         self.research_person_table_tw.setObjectName(u"research_person_table_tw")
         self.research_person_table_tw.setWordWrap(True)
         self.research_person_table_tw.horizontalHeader().setCascadingSectionResizes(False)
         self.research_person_table_tw.horizontalHeader().setMinimumSectionSize(30)
+        self.research_person_table_tw.horizontalHeader().setProperty("showSortIndicator", False)
+        self.research_person_table_tw.horizontalHeader().setStretchLastSection(False)
         self.research_person_table_tw.verticalHeader().setVisible(False)
         self.research_person_table_tw.verticalHeader().setDefaultSectionSize(30)
 
@@ -133,6 +149,8 @@ class Ui_research_main_window(object):
     def retranslateUi(self, research_main_window):
         research_main_window.setWindowTitle(QCoreApplication.translate("research_main_window", u"MainWindow", None))
         self.add_person.setText(QCoreApplication.translate("research_main_window", u"\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c", None))
+        self.change_pb.setText(QCoreApplication.translate("research_main_window", u"\u0418\u0437\u043c\u0435\u043d\u0438\u0442\u044c", None))
+        self.form_pb.setText(QCoreApplication.translate("research_main_window", u"\u0421\u0444\u043e\u0440\u043c\u0438\u0440\u043e\u0432\u0430\u0442\u044c", None))
         self.checkBox.setText(QCoreApplication.translate("research_main_window", u"\u0417\u0430\u043f\u043e\u043c\u043d\u0438\u0442\u044c \u0434\u0430\u043d\u043d\u044b\u0435", None))
         ___qtablewidgetitem = self.research_person_table_tw.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("research_main_window", u"\u2116 \u043f/\u043f", None));
@@ -150,5 +168,9 @@ class Ui_research_main_window(object):
         ___qtablewidgetitem6.setText(QCoreApplication.translate("research_main_window", u"\u041c\u0435\u0441\u0442\u043e \u0440\u043e\u0436\u0434\u0435\u043d\u0438\u044f", None));
         ___qtablewidgetitem7 = self.research_person_table_tw.horizontalHeaderItem(7)
         ___qtablewidgetitem7.setText(QCoreApplication.translate("research_main_window", u"\u041c\u0430\u0442\u0435\u0440\u0438\u0430\u043b\u044b", None));
+        ___qtablewidgetitem8 = self.research_person_table_tw.horizontalHeaderItem(8)
+        ___qtablewidgetitem8.setText(QCoreApplication.translate("research_main_window", u"\u0417\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043e\u0432\u0430\u043d\u043e", None));
+        ___qtablewidgetitem9 = self.research_person_table_tw.horizontalHeaderItem(9)
+        ___qtablewidgetitem9.setText(QCoreApplication.translate("research_main_window", u"\u0421\u043e\u0431\u044b\u0442\u0438\u0435", None));
     # retranslateUi
 

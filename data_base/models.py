@@ -31,6 +31,14 @@ class BaseDBModel(Base):
     __abstract__ = True
     id = Column(Integer, primary_key=True, autoincrement=True)
 
+    @classmethod
+    def get_all(cls):
+        return session.query(cls).all()
+
+    @classmethod
+    def get_by_id(cls, item_id):
+        return session.query(cls).get(item_id)
+
     def save(self, commit=True):
         session.add(self)
         if commit:
@@ -64,9 +72,8 @@ class Research(BaseDBModel):
     addressees = relationship('Addressees', backref='research')
     event = relationship('Event', backref='research')
 
-    @classmethod
-    def get_all(cls):
-        return session.query().all()
+    def convert_date(self):
+        return self.date_of_recording.strftime('%m.%d.%Y')
 
 
 class Person(BaseDBModel):
@@ -79,10 +86,6 @@ class Person(BaseDBModel):
         self.surname = surname
         self.name = name
         self.middle_name = middle_name
-
-    @classmethod
-    def get_by_id(cls, item_id):
-        return session.query(cls).get(item_id)
 
 
 class PersonToCheck(Person):
@@ -97,6 +100,9 @@ class PersonToCheck(Person):
         self.birthplace = birthplace
         self.male = male
 
+    def convert_date(self):
+        return self.birthday.strftime('%m.%d.%Y')
+
 
 class OfficialPerson(Person):
     __abstract__ = True
@@ -109,13 +115,6 @@ class OfficialPerson(Person):
         self.post = post
         self.rank = rank
         self.department = department
-
-    def __repr__(self):
-        return f'{self.id} {self.surname} {self.name} {self.middle_name} {self.post} {self.rank} {self.department}'
-
-    @classmethod
-    def get_all_name(cls):
-        return session.query(cls).all()
 
     def create_name_reduction(self):
         return f'{self.name[0].title()}.{self.middle_name[0].title()}. {self.surname}'
@@ -156,10 +155,12 @@ class Case(BaseDBModel):
     number = Column(String)
     formation_date = Column(DateTime)
 
-    def __init__(self, number, formation_date, plot):
+    def __init__(self, number, formation_date):
         self.number = number
         self.formation_date = formation_date
-        self.plot = plot
+
+    def convert_date(self):
+        return self.formation_date.strftime('%m.%d.%Y')
 
 
 class Requisition(Case):
@@ -173,7 +174,7 @@ class BaseIncident(Case):
     plot = Column(Text)
 
     def __init__(self, number, formation_date, plot, article, address):
-        super().__init__(number, formation_date, plot)
+        super().__init__(number, formation_date)
         self.article = article
         self.address = address
         self.plot = plot

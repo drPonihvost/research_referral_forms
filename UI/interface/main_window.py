@@ -1,7 +1,6 @@
 import sys
-from datetime import datetime
 
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QAbstractItemView
 
 from UI.interface.main_official_person_data_widget import OfficialPersonData
 from UI.interface.person_data_form import PersonaReferralForm
@@ -14,6 +13,7 @@ class MainWindow(QMainWindow, Ui_research_main_window):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.research_person_table_tw.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.person_data_form = None
         self.data = {}
         self.official_person_data_initiator = OfficialPersonData(role='initiator')
@@ -23,12 +23,46 @@ class MainWindow(QMainWindow, Ui_research_main_window):
         self.official_person_data_executor = OfficialPersonData(role='executor')
         self.executor_lo.addWidget(self.official_person_data_executor)
         self.verify_official_person()
+        self.form_research_table()
 
-        # slots
+        # signals
         self.add_person.clicked.connect(self.create_person)
         self.official_person_data_executor.choice_pb.clicked.connect(self.verify_official_person)
         self.official_person_data_addresses.choice_pb.clicked.connect(self.verify_official_person)
         self.official_person_data_initiator.choice_pb.clicked.connect(self.verify_official_person)
+        self.form_pb.clicked.connect(self.create_research_blanks)
+
+
+    def form_research_table(self):
+        self.research_person_table_tw.setRowCount(0)
+        data = Research.get_all()
+        for i in data:
+            row_position = self.research_person_table_tw.rowCount()
+            self.research_person_table_tw.insertRow(row_position)
+            self.research_person_table_tw.setItem(row_position, 0, QTableWidgetItem(str(i.id)))
+            self.research_person_table_tw.setItem(row_position, 1, QTableWidgetItem(i.convert_date()))
+            self.research_person_table_tw.setItem(row_position, 2, QTableWidgetItem(i.person.surname))
+            self.research_person_table_tw.setItem(row_position, 3, QTableWidgetItem(i.person.name))
+            self.research_person_table_tw.setItem(row_position, 4, QTableWidgetItem(i.person.middle_name))
+            self.research_person_table_tw.setItem(row_position, 5, QTableWidgetItem(i.person.convert_date()))
+            self.research_person_table_tw.setItem(row_position, 6, QTableWidgetItem(i.person.birthplace))
+            number = None
+            formation_date = None
+            plot = None
+            if i.event.case_type == 'criminal':
+                number = f'у/д № {i.event.criminal.number}'
+                formation_date = i.event.criminal.convert_date()
+                plot = i.event.criminal.plot
+            elif i.event.case_type == 'incident':
+                number = f'КУСП № {i.event.incident.number}'
+                formation_date = i.event.incident.convert_date()
+                plot = i.event.incident.plot
+            elif i.event.case_type == 'requisition':
+                number = f'исх. № {i.event.requisition.number}'
+                formation_date = i.event.requisition.convert_date()
+            self.research_person_table_tw.setItem(row_position, 7, QTableWidgetItem(number))
+            self.research_person_table_tw.setItem(row_position, 8, QTableWidgetItem(formation_date))
+            self.research_person_table_tw.setItem(row_position, 9, QTableWidgetItem(plot))
 
     def verify_official_person(self):
         if self.official_person_data_initiator.name_le.text() and \
@@ -38,26 +72,13 @@ class MainWindow(QMainWindow, Ui_research_main_window):
         else:
             self.add_person.setDisabled(True)
 
-    # def form_research_table(self):
-    #     data = ResearchDBModel.get_all()
-    #     for i in data:
-    #         row_position = self.research_person_table_tw.rowCount()
-    #         self.research_person_table_tw.insertRow(row_position)
-    #         self.research_person_table_tw.setItem(row_position, 0, QTableWidgetItem(i.id))
-    #         self.research_person_table_tw.setItem(row_position, 1, QTableWidgetItem(i.date_of_recording))
-    #         person = PersonToCheckDBModel.get_by_id(i.person_id)
-    #         self.research_person_table_tw.setItem(row_position, 2, QTableWidgetItem(person.surname))
-    #         self.research_person_table_tw.setItem(row_position, 3, QTableWidgetItem(person.name))
-    #         self.research_person_table_tw.setItem(row_position, 4, QTableWidgetItem(person.middle_name))
-    #         self.research_person_table_tw.setItem(row_position, 5, QTableWidgetItem(person.date_of_birth))
-    #         self.research_person_table_tw.setItem(row_position, 6, QTableWidgetItem(self.data['birthplace']))
-
     def create_person(self):
         self.person_data_form = PersonaReferralForm()
         event = self.person_data_form.exec()
         if event:
             self.data = self.person_data_form.get_info()
             self.load_research()
+            self.form_research_table()
 
     def load_research(self):
         addressees_id = self.official_person_data_addresses.official_person_id
@@ -80,12 +101,12 @@ class MainWindow(QMainWindow, Ui_research_main_window):
         event_data = dict(
             number=self.data['number'],
             formation_date=self.data['formation_date'],
-            plot=self.data['plot']
         )
         if self.data['case_category'] != 'requisition':
             event_data.update(
                 address=self.data['address'],
                 article=self.data['item'],
+                plot=self.data['plot']
             )
         event = Event(
             case_type=self.data['case_category']
@@ -114,45 +135,13 @@ class MainWindow(QMainWindow, Ui_research_main_window):
         research.event = event
         research.save()
 
-        # person = PersonToCheck(
-        #     surname=self.data['surname'],
-        #     name=self.data['name'],
-        #     middle_name=self.data['middle_name'],
-        #     birthday=self.data['date_of_birth'],
-        #     birthplace=self.data['birthplace'],
-        #     male=self.data['male']
-        # )
-        # event_type = dict(
-        #     criminal=Criminal,
-        #     incident=Incident,
-        #     search_case=SearchCase,
-        #     inspection_material=InspectionMaterial
-        # )
-        # event_data = dict(
-        #     number=self.data['number'],
-        #     formation_date=self.data['formation_date'],
-        # )
-        # if self.data['case_category'] != 'requisition':
-        #     event_data.update(
-        #         incident=self.data['item'],
-        #         address=self.data['address'],
-        #         article=self.data['number'],
-        #     )
-        # case = event_type[self.data['case_category']]
-        #
-        # event = {
-        #     'case_type':self.data['case_category'],
-        #     self.data['case_category']: case(**event_data)
-        # }
-        # research = Research(
-        #     date_of_recording=datetime.today(),
-        #     person=person,
-        #     initiator=Initiator.get_by_id(initiator_id),
-        #     executor=Executor.get_by_id(executor_id),
-        #     addressees=Addressees.get_by_id(addressees_id),
-        #     event=event
-        # )
-        # research.save()
+    def create_research_blanks(self):
+        # #selected cell value.
+        items = self.research_person_table_tw.selectionModel().selectedRows(0)
+        for i in items:
+            print(i.siblingAtColumn(0))
+
+
 
 
 if __name__ == "__main__":

@@ -66,7 +66,7 @@ class OfficialPersonChoice(QDialog, QWidget, Ui_official_person_choice):
     def form_table(self):
         self.official_person_tw.setRowCount(0)
         table = self.table[self.role]
-        off_person = table.get_all_name()
+        off_person = table.get_all()
         if off_person:
             for i in off_person:
                 row_position = self.official_person_tw.rowCount()
@@ -158,7 +158,7 @@ class OfficialPersonData(QWidget, Ui_official_person_data):
             self.post_te.setText(item.post)
             self.rank_le.setText(item.rank)
             self.name_le.setText(item.create_name_reduction())
-        elif not self.table[self.role].get_all_name():
+        elif not self.table[self.role].get_all():
             self.department_te.clear()
             self.post_te.clear()
             self.rank_le.clear()

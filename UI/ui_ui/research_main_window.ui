@@ -40,6 +40,20 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="change_pb">
+            <property name="text">
+             <string>Изменить</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="form_pb">
+            <property name="text">
+             <string>Сформировать</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -88,6 +102,12 @@
           </attribute>
           <attribute name="horizontalHeaderMinimumSectionSize">
            <number>30</number>
+          </attribute>
+          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>false</bool>
           </attribute>
           <attribute name="verticalHeaderVisible">
            <bool>false</bool>
@@ -138,6 +158,16 @@
           <column>
            <property name="text">
             <string>Материалы</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Зарегистрировано</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Событие</string>
            </property>
           </column>
          </widget>
