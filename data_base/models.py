@@ -73,7 +73,7 @@ class Research(BaseDBModel):
     event = relationship('Event', backref='research')
 
     def convert_date(self):
-        return self.date_of_recording.strftime('%m.%d.%Y')
+        return self.date_of_recording.strftime('%d.%m.%Y')
 
 
 class Person(BaseDBModel):
@@ -100,8 +100,11 @@ class PersonToCheck(Person):
         self.birthplace = birthplace
         self.male = male
 
+    def create_name_reduction(self):
+        return f'{self.surname} {self.name[0].title()}.{self.middle_name[0].title()}.'
+
     def convert_date(self):
-        return self.birthday.strftime('%m.%d.%Y')
+        return self.birthday.strftime('%d.%m.%Y')
 
 
 class OfficialPerson(Person):
@@ -149,6 +152,29 @@ class Event(BaseDBModel):
     def __init__(self, case_type):
         self.case_type = case_type
 
+    def get_event_by_case(self):
+        case = dict()
+        case['type'] = self.case_type
+        if case['type'] == 'criminal':
+            case['case'] = self.criminal
+            case['number_to_string'] = f'у/д № {self.criminal.number}'
+        elif case['type'] == 'incident':
+            case['case'] = self.incident
+            case['number_to_string'] = f'КУСП № {self.incident.number}'
+        elif case['type'] == 'search_case':
+            case['case'] = self.search_case
+            case['number_to_string'] = f'РД № {self.search_case.number}'
+        elif case['type'] == 'inspection_material':
+            case['case'] = self.inspection_material
+            case['number_to_string'] = f'{self.inspection_material.number}'
+        elif case['type'] == 'requisition':
+            case['case'] = self.requisition
+            case['number_to_string'] = f'исх. № {self.requisition.number}'
+        return case
+
+
+
+
 
 class Case(BaseDBModel):
     __abstract__ = True
@@ -160,7 +186,7 @@ class Case(BaseDBModel):
         self.formation_date = formation_date
 
     def convert_date(self):
-        return self.formation_date.strftime('%m.%d.%Y')
+        return self.formation_date.strftime('%d.%m.%Y')
 
 
 class Requisition(Case):

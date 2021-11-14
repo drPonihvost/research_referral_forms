@@ -1,6 +1,10 @@
+import json
 import sys
 
+import qrcode
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QAbstractItemView
+from docx.shared import Mm
+from docxtpl import DocxTemplate, InlineImage
 
 from UI.interface.main_official_person_data_widget import OfficialPersonData
 from UI.interface.person_data_form import PersonaReferralForm
@@ -9,7 +13,7 @@ from data_base.models import Research, PersonToCheck, Criminal, Incident, Search
     Event
 
 
-class MainWindow(QMainWindow, Ui_research_main_window):
+class ResearchWindow(QMainWindow, Ui_research_main_window):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -31,7 +35,6 @@ class MainWindow(QMainWindow, Ui_research_main_window):
         self.official_person_data_addresses.choice_pb.clicked.connect(self.verify_official_person)
         self.official_person_data_initiator.choice_pb.clicked.connect(self.verify_official_person)
         self.form_pb.clicked.connect(self.create_research_blanks)
-
 
     def form_research_table(self):
         self.research_person_table_tw.setRowCount(0)
@@ -135,17 +138,47 @@ class MainWindow(QMainWindow, Ui_research_main_window):
         research.event = event
         research.save()
 
+
     def create_research_blanks(self):
-        # #selected cell value.
-        items = self.research_person_table_tw.selectionModel().selectedRows(0)
-        for i in items:
-            print(i.siblingAtColumn(0))
+        indexes = self.research_person_table_tw.selectionModel().selectedRows(0)
+        for i in indexes:
+            item = Research.get_by_id(i.data())
 
-
+            doc = DocxTemplate("word_templates/research_referral_person_template.docx")
+            context_to_qr = dict(
+                organization=item.initiator.department.title(),
+                addr_post=item.addressees.post.title(),
+                addr_department=item.addressees.department,
+                addr_rank=item.addressees.rank,
+                addr_name=item.addressees.create_name_reduction(),
+                case=item.event.get_event_by_case()['number_to_string'],
+                formation_date=item.event.get_event_by_case()['case'].convert_date(),
+                article=item.event.get_event_by_case()['case'].article,
+                plot=item.event.get_event_by_case()['case'].plot,
+                surname=item.person.surname,
+                name=item.person.name,
+                middle_name=item.person.middle_name,
+                birthday=item.person.convert_date(),
+                birthplace=item.person.birthplace,
+                red_name=item.person.create_name_reduction(),
+                init_post=item.initiator.post.title(),
+                init_rank=item.initiator.rank,
+                init_name=item.initiator.create_name_reduction()
+            )
+            json_obj = json.dumps(context_to_qr, indent=4, ensure_ascii=False)  # ensure_ascii=False
+            print(len(str(json_obj)))
+            img = qrcode.make(json_obj)
+            img.save('qr_image/qr_image.png')
+            image = InlineImage(doc, image_descriptor='qr_image/qr_image.png', width=Mm(50), height=Mm(50))
+            context_to_qr['qr'] = image
+            doc.render(context_to_qr)
+            docs_name = '{}_{}_{}_{}'.format(item.id, context_to_qr['surname'], context_to_qr['name'],
+                                             context_to_qr['middle_name'])
+            doc.save(f"research_directions/{docs_name}.docx")
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    w = MainWindow()
+    w = ResearchWindow()
     w.show()
     sys.exit(app.exec())
