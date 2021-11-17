@@ -3,7 +3,7 @@ import os
 import sys
 from datetime import datetime
 
-from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -27,7 +27,7 @@ session = Session()
 Base = declarative_base()
 
 
-class BaseDBModel(Base):
+class BaseModel(Base):
     __abstract__ = True
     id = Column(Integer, primary_key=True, autoincrement=True)
 
@@ -58,7 +58,7 @@ class BaseDBModel(Base):
             session.commit()
 
 
-class Research(BaseDBModel):
+class Research(BaseModel):
     __tablename__ = 'research'
     date_of_recording = Column(DateTime, default=datetime.utcnow)
     person_id = Column(Integer, ForeignKey('person_to_check.id'), nullable=False)
@@ -76,7 +76,7 @@ class Research(BaseDBModel):
         return self.date_of_recording.strftime('%d.%m.%Y')
 
 
-class Person(BaseDBModel):
+class Person(BaseModel):
     __abstract__ = True
     surname = Column(String)
     name = Column(String)
@@ -135,96 +135,60 @@ class Addressees(OfficialPerson):
     __tablename__ = 'addressees'
 
 
-class Event(BaseDBModel):
+class Event(BaseModel):
     __tablename__ = 'event'
     case_type = Column(String)
-    criminal_id = Column(Integer, ForeignKey('criminal.id'))
-    incident_id = Column(Integer, ForeignKey('incident.id'))
-    requisition_id = Column(Integer, ForeignKey('requisition.id'))
-    search_case_id = Column(Integer, ForeignKey('search_case.id'))
-    inspection_material_id = Column(Integer, ForeignKey('inspection_material.id'))
-    criminal = relationship('Criminal', backref='event')
-    incident = relationship('Incident', backref='event')
-    requisition = relationship('Requisition', backref='event')
-    search_case = relationship('SearchCase', backref='event')
-    inspection_material = relationship('InspectionMaterial', backref='event')
-
-    def __init__(self, case_type):
-        self.case_type = case_type
-
-    def get_event_by_case(self):
-        case = dict()
-        case['type'] = self.case_type
-        if case['type'] == 'criminal':
-            case['case'] = self.criminal
-            case['number_to_string'] = f'у/д № {self.criminal.number}'
-        elif case['type'] == 'incident':
-            case['case'] = self.incident
-            case['number_to_string'] = f'КУСП № {self.incident.number}'
-        elif case['type'] == 'search_case':
-            case['case'] = self.search_case
-            case['number_to_string'] = f'РД № {self.search_case.number}'
-        elif case['type'] == 'inspection_material':
-            case['case'] = self.inspection_material
-            case['number_to_string'] = f'{self.inspection_material.number}'
-        elif case['type'] == 'requisition':
-            case['case'] = self.requisition
-            case['number_to_string'] = f'исх. № {self.requisition.number}'
-        return case
-
-
-
-
-
-class Case(BaseDBModel):
-    __abstract__ = True
     number = Column(String)
     formation_date = Column(DateTime)
-
-    def __init__(self, number, formation_date):
-        self.number = number
-        self.formation_date = formation_date
-
-    def convert_date(self):
-        return self.formation_date.strftime('%d.%m.%Y')
-
-
-class Requisition(Case):
-    __tablename__ = 'requisition'
-
-
-class BaseIncident(Case):
-    __abstract__ = True
     article = Column(String)
     address = Column(String)
-    plot = Column(Text)
+    plot = Column(String)
 
-    def __init__(self, number, formation_date, plot, article, address):
-        super().__init__(number, formation_date)
+    def __init__(self, case_type, number, formation_date, article, address, plot):
+        self.case_type = case_type
+        self.number = number
+        self.formation_date = formation_date
         self.article = article
         self.address = address
         self.plot = plot
 
+    def convert_date(self):
+        return self.formation_date.strftime('%d.%m.%Y')
 
-class Criminal(BaseIncident):
-    __tablename__ = 'criminal'
+    def number_to_string(self):
+        case = {
+            'criminal': 'у/д № ',
+            'incident': 'КУСП № ',
+            'search_case': 'РД № ',
+            'inspection_material': '',
+            'requisition': 'исх. № '
+        }
+        return case[self.case_type] + self.number
 
+    @classmethod
+    def get_event_by_data(cls, case_type, number):
+        return session.query(cls).filter_by(case_type=case_type, number=number).first()
 
-class Incident(BaseIncident):
-    __tablename__ = 'incident'
-
-
-class SearchCase(BaseIncident):
-    __tablename__ = 'search_case'
-
-
-class InspectionMaterial(BaseIncident):
-    __tablename__ = 'inspection_material'
+    # def get_event_by_case(self):
+    #     case = dict()
+    #     case['type'] = self.case_type
+    #     if case['type'] == 'criminal':
+    #         case['case'] = self.criminal
+    #         case['number_to_string'] = f'у/д № {self.criminal.number}'
+    #     elif case['type'] == 'incident':
+    #         case['case'] = self.incident
+    #         case['number_to_string'] = f'КУСП № {self.incident.number}'
+    #     elif case['type'] == 'search_case':
+    #         case['case'] = self.search_case
+    #         case['number_to_string'] = f'РД № {self.search_case.number}'
+    #     elif case['type'] == 'inspection_material':
+    #         case['case'] = self.inspection_material
+    #         case['number_to_string'] = f'{self.inspection_material.number}'
+    #     elif case['type'] == 'requisition':
+    #         case['case'] = self.requisition
+    #         case['number_to_string'] = f'исх. № {self.requisition.number}'
+    #     return case
 
 
 def init_db():
     Base.metadata.create_all(engine)
-
-
-if __name__ == '__main__':
-    init_db()

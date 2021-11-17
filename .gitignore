@@ -1,7 +1,7 @@
 venv
 qr_image
-research_directions
-test_db.db
+research_directions/*
+test_db.db/*
 .idea
 *.pyc
 __pycache__/
