@@ -9,8 +9,7 @@ from docxtpl import DocxTemplate, InlineImage
 from UI.interface.main_official_person_data_widget import OfficialPersonData
 from UI.interface.person_data_form import PersonaReferralForm
 from UI.ui_py.research_main_window import Ui_research_main_window
-from data_base.models import Research, PersonToCheck, Criminal, Incident, SearchCase, InspectionMaterial, Requisition, \
-    Event
+from data_base.models import Research, PersonToCheck, Event
 
 
 class ResearchWindow(QMainWindow, Ui_research_main_window):
@@ -49,23 +48,9 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
             self.research_person_table_tw.setItem(row_position, 4, QTableWidgetItem(i.person.middle_name))
             self.research_person_table_tw.setItem(row_position, 5, QTableWidgetItem(i.person.convert_date()))
             self.research_person_table_tw.setItem(row_position, 6, QTableWidgetItem(i.person.birthplace))
-            number = None
-            formation_date = None
-            plot = None
-            if i.event.case_type == 'criminal':
-                number = f'у/д № {i.event.criminal.number}'
-                formation_date = i.event.criminal.convert_date()
-                plot = i.event.criminal.plot
-            elif i.event.case_type == 'incident':
-                number = f'КУСП № {i.event.incident.number}'
-                formation_date = i.event.incident.convert_date()
-                plot = i.event.incident.plot
-            elif i.event.case_type == 'requisition':
-                number = f'исх. № {i.event.requisition.number}'
-                formation_date = i.event.requisition.convert_date()
-            self.research_person_table_tw.setItem(row_position, 7, QTableWidgetItem(number))
-            self.research_person_table_tw.setItem(row_position, 8, QTableWidgetItem(formation_date))
-            self.research_person_table_tw.setItem(row_position, 9, QTableWidgetItem(plot))
+            self.research_person_table_tw.setItem(row_position, 7, QTableWidgetItem(i.event.number_to_string()))
+            self.research_person_table_tw.setItem(row_position, 8, QTableWidgetItem(i.event.convert_date()))
+            self.research_person_table_tw.setItem(row_position, 9, QTableWidgetItem(i.event.plot))
 
     def verify_official_person(self):
         if self.official_person_data_initiator.name_le.text() and \
@@ -102,6 +87,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
             male=self.data['male']
         )
         event_data = dict(
+            case_type=self.data['case_category'],
             number=self.data['number'],
             formation_date=self.data['formation_date'],
         )
@@ -111,33 +97,14 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
                 article=self.data['item'],
                 plot=self.data['plot']
             )
-        event = Event(
-            case_type=self.data['case_category']
-        )
-        if self.data['case_category'] == 'criminal':
-            event.criminal = Criminal(
-                **event_data
-            )
-        elif self.data['case_category'] == 'incident':
-            event.incident = Incident(
-                **event_data
-            )
-        elif self.data['case_category'] == 'search_case':
-            event.search_case = SearchCase(
-                **event_data
-            )
-        elif self.data['case_category'] == 'inspection_material':
-            event.inspection_material = InspectionMaterial(
-                **event_data
-            )
-        elif self.data['case_category'] == 'requisition':
-            event.requisition = Requisition(
-                **event_data
-            )
+        event = Event.get_event_by_data(
+            case_type=event_data['case_type'],
+            number=event_data['number'])
+        if not event:
+            event = Event(**event_data)
         research.person = person
         research.event = event
         research.save()
-
 
     def create_research_blanks(self):
         indexes = self.research_person_table_tw.selectionModel().selectedRows(0)
@@ -151,10 +118,10 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
                 addr_department=item.addressees.department,
                 addr_rank=item.addressees.rank,
                 addr_name=item.addressees.create_name_reduction(),
-                case=item.event.get_event_by_case()['number_to_string'],
-                formation_date=item.event.get_event_by_case()['case'].convert_date(),
-                article=item.event.get_event_by_case()['case'].article,
-                plot=item.event.get_event_by_case()['case'].plot,
+                case=item.event.number_to_string(),
+                formation_date=item.event.convert_date(),
+                article=item.event.article,
+                plot=item.event.plot,
                 surname=item.person.surname,
                 name=item.person.name,
                 middle_name=item.person.middle_name,
