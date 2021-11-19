@@ -2,9 +2,11 @@ from data_base.models import *
 
 
 def db_init():
-
     init_db()
 
+
+if __name__ == '__main__':
+    init_db()
     Addressees(
         department='ЭКЦ МВД по Республике Хакасия',
         post='Начальник',

@@ -27,6 +27,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         self.executor_lo.addWidget(self.official_person_data_executor)
         self.verify_official_person()
         self.form_research_table()
+        self.activate_button()
 
         # signals
         self.add_person.clicked.connect(self.create_person)
@@ -34,6 +35,13 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         self.official_person_data_addresses.choice_pb.clicked.connect(self.verify_official_person)
         self.official_person_data_initiator.choice_pb.clicked.connect(self.verify_official_person)
         self.form_pb.clicked.connect(self.create_research_blanks)
+        self.research_person_table_tw.itemSelectionChanged.connect(self.activate_button)
+
+    def activate_button(self):
+        enabled = True if self.research_person_table_tw.selectionModel().selectedRows() else False
+        self.form_pb.setEnabled(enabled)
+        bulk_select = True if len(self.research_person_table_tw.selectionModel().selectedRows()) == 1 else False
+        self.change_pb.setEnabled(enabled and bulk_select)
 
     def form_research_table(self):
         self.research_person_table_tw.setRowCount(0)
@@ -67,6 +75,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
             self.data = self.person_data_form.get_info()
             self.load_research()
             self.form_research_table()
+        self.activate_button()
 
     def load_research(self):
         addressees_id = self.official_person_data_addresses.official_person_id
@@ -105,6 +114,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         research.person = person
         research.event = event
         research.save()
+        self.activate_button()
 
     def create_research_blanks(self):
         indexes = self.research_person_table_tw.selectionModel().selectedRows(0)
@@ -142,6 +152,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
             docs_name = '{}_{}_{}_{}'.format(item.id, context_to_qr['surname'], context_to_qr['name'],
                                              context_to_qr['middle_name'])
             doc.save(f"research_directions/{docs_name}.docx")
+        self.activate_button()
 
 
 if __name__ == "__main__":

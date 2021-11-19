@@ -55,7 +55,11 @@ class BaseModel(Base):
     def delete(self, commit=True):
         session.delete(self)
         if commit:
-            session.commit()
+            try:
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                raise e
 
 
 class Research(BaseModel):
@@ -72,8 +76,18 @@ class Research(BaseModel):
     addressees = relationship('Addressees', backref='research')
     event = relationship('Event', backref='research')
 
+    @classmethod
+    def get_by_off_person_id(cls, role, off_person_id):
+        if role == 'initiator':
+            return session.query(cls).filter_by(initiator_id=off_person_id).first()
+        elif role == 'executor':
+            return session.query(cls).filter_by(executor_id=off_person_id).first()
+        elif role == 'addressees':
+            return session.query(cls).filter_by(addressees_id=off_person_id).first()
+
     def convert_date(self):
         return self.date_of_recording.strftime('%d.%m.%Y')
+
 
 
 class Person(BaseModel):
@@ -168,27 +182,6 @@ class Event(BaseModel):
     @classmethod
     def get_event_by_data(cls, case_type, number):
         return session.query(cls).filter_by(case_type=case_type, number=number).first()
-
-    # def get_event_by_case(self):
-    #     case = dict()
-    #     case['type'] = self.case_type
-    #     if case['type'] == 'criminal':
-    #         case['case'] = self.criminal
-    #         case['number_to_string'] = f'у/д № {self.criminal.number}'
-    #     elif case['type'] == 'incident':
-    #         case['case'] = self.incident
-    #         case['number_to_string'] = f'КУСП № {self.incident.number}'
-    #     elif case['type'] == 'search_case':
-    #         case['case'] = self.search_case
-    #         case['number_to_string'] = f'РД № {self.search_case.number}'
-    #     elif case['type'] == 'inspection_material':
-    #         case['case'] = self.inspection_material
-    #         case['number_to_string'] = f'{self.inspection_material.number}'
-    #     elif case['type'] == 'requisition':
-    #         case['case'] = self.requisition
-    #         case['number_to_string'] = f'исх. № {self.requisition.number}'
-    #     return case
-
 
 def init_db():
     Base.metadata.create_all(engine)
