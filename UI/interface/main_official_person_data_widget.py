@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget, QDialog, QTableWidgetItem, QAbstractItemV
 from UI.ui_py.create_official_person_dialog import Ui_create_official_person_dialog
 from UI.ui_py.official_person_choice_dialog import Ui_official_person_choice
 from UI.ui_py.official_person_data_widget import Ui_official_person_data
-from data_base.models import Addressees, Executor, Initiator
+from data_base.models import Addressees, Executor, Initiator, Research
 
 
 class CreateOfficialPersonDialog(QDialog, Ui_create_official_person_dialog):
@@ -42,12 +42,10 @@ class OfficialPersonChoice(QDialog, QWidget, Ui_official_person_choice):
             initiator=Initiator
         )
         self.setupUi(self)
-        self.select_pb.setDisabled(True)
-        self.change_pb.setDisabled(True)
-        self.delete_pb.setDisabled(True)
         self.official_person_tw.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.official_person_tw.setSelectionMode(QAbstractItemView.SingleSelection)
         self.form_table()
+        self.activate_button()
         self.create_person_widget = None
 
         # Signals
@@ -58,10 +56,11 @@ class OfficialPersonChoice(QDialog, QWidget, Ui_official_person_choice):
         self.delete_pb.clicked.connect(self.delete_official_person)
         self.official_person_tw.itemSelectionChanged.connect(self.activate_button)
 
-    def activate_button(self, act=True):
-        self.select_pb.setEnabled(act)
-        self.change_pb.setEnabled(act)
-        self.delete_pb.setEnabled(act)
+    def activate_button(self):
+        enabled = True if self.official_person_tw.selectionModel().selectedRows(0) else False
+        self.select_pb.setEnabled(enabled)
+        self.change_pb.setEnabled(enabled)
+        self.delete_pb.setEnabled(enabled)
 
     def form_table(self):
         self.official_person_tw.setRowCount(0)
@@ -85,6 +84,7 @@ class OfficialPersonChoice(QDialog, QWidget, Ui_official_person_choice):
             official_person = self.table[self.role](**data)
             official_person.save()
             self.form_table()
+        self.activate_button()
 
     def change_official_person(self):
         item_id = int(self.get_item_id())
@@ -96,7 +96,6 @@ class OfficialPersonChoice(QDialog, QWidget, Ui_official_person_choice):
         self.create_person_widget.name_le.setText(item.name)
         self.create_person_widget.surname_le.setText(item.surname)
         self.create_person_widget.middle_name_le.setText(item.middle_name)
-
         event = self.create_person_widget.exec()
         if event:
             data = self.create_person_widget.get_data()
@@ -108,17 +107,18 @@ class OfficialPersonChoice(QDialog, QWidget, Ui_official_person_choice):
             item.middle_name = data['middle_name']
             item.update()
             self.form_table()
+        self.activate_button()
 
     def delete_official_person(self):
         item_id = int(self.get_item_id())
         item = self.table[self.role].get_by_id(item_id)
-        item.delete()
-        self.form_table()
-        if self.official_person_tw.rowCount() == 0:
-            self.activate_button(act=False)
+        research = Research.get_by_off_person_id(role=self.role, off_person_id=item_id)
+        if research:
+            print('Удаление невозможно есть связанные направления')
         else:
-            row_count = self.official_person_tw.rowCount()
-            self.official_person_tw.selectRow(row_count-1)
+            item.delete()
+        self.form_table()
+        self.activate_button()
 
     def get_item_id(self):
         return self.official_person_tw.selectedItems()[0].text()
