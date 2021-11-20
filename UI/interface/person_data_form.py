@@ -15,7 +15,7 @@ class CriminalCaseForm(QWidget, Ui_ud_form):
         return {
             'case_category': 'criminal',
             'number': self.number_cb.text(),
-            'formation_date': self.formation_date_le.date().toPython(),
+            'formation_date': self.formation_date_le.dateTime().toPython(),
             'item': self.item_de.currentText(),
             'address': self.number_cb_2.text(),
         }
@@ -30,7 +30,7 @@ class IncidentForm(QWidget, Ui_kusp_form):
         return {
             'case_category': 'incident',
             'number': self.number_cb.text(),
-            'formation_date': self.formation_date_le.date().toPython(),
+            'formation_date': self.formation_date_le.dateTime().toPython(),
             'item': self.item_de.currentText(),
             'address': self.number_cb_2.text()
         }
@@ -45,7 +45,7 @@ class RequisitionForm(QWidget, Ui_Form):
         return {
             'case_category': 'requisition',
             'number': self.number_cb.text(),
-            'formation_date': self.formation_date_le.date().toPython(),
+            'formation_date': self.formation_date_le.dateTime().toPython(),
         }
 
 
@@ -57,9 +57,9 @@ class PersonaReferralForm(QDialog, Ui_persona_referal_form):
         self.set_event_type()
 
         # signals
-        self.ud_rb.toggled.connect(self.set_event_type)
-        self.kusp_rb.toggled.connect(self.set_event_type)
-        self.req_rb.toggled.connect(self.set_event_type)
+        self.ud_rb.clicked.connect(self.set_event_type)
+        self.kusp_rb.clicked.connect(self.set_event_type)
+        self.req_rb.clicked.connect(self.set_event_type)
         self.save_btn.clicked.connect(self.accept)
         self.cancel_btn.clicked.connect(self.reject)
 
@@ -80,7 +80,9 @@ class PersonaReferralForm(QDialog, Ui_persona_referal_form):
 
     def set_event_type(self):
         for i in reversed(range(self.event_lo.count())):
-            self.event_lo.itemAt(i).widget().deleteLater()
+            widget_to_remove = self.event_lo.itemAt(i).widget()
+            self.event_lo.removeWidget(widget_to_remove)
+            widget_to_remove.setParent(None)
         if self.ud_rb.isChecked():
             self.event_description_form = CriminalCaseForm()
         elif self.kusp_rb.isChecked():
@@ -88,9 +90,3 @@ class PersonaReferralForm(QDialog, Ui_persona_referal_form):
         elif self.req_rb.isChecked():
             self.event_description_form = RequisitionForm()
         self.event_lo.addWidget(self.event_description_form)
-
-# if __name__ == "__main__":
-#     app = QApplication(sys.argv)
-#     w = PersonaReferralForm()
-#     w.show()
-#     sys.exit(app.exec())

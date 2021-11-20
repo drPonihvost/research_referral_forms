@@ -70,12 +70,31 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
 
     def create_person(self):
         self.person_data_form = PersonaReferralForm()
+        if self.remember_cb.isChecked():
+            record = Research.get_last_record()
+            if record:
+                self.activate_check_box(record.event.case_type)
+                self.person_data_form.set_event_type()
+                self.person_data_form.event_description_form.number_cb.setText(record.event.number)
+                self.person_data_form.event_description_form.formation_date_le.setDate(record.event.formation_date)
+                self.person_data_form.plot_te.setText(record.event.plot)
+                if record.event.case_type != 'requisition':
+                    self.person_data_form.event_description_form.item_de.setCurrentText(record.event.article)
+                    self.person_data_form.event_description_form.number_cb_2.setText(record.event.address)
         event = self.person_data_form.exec()
         if event:
             self.data = self.person_data_form.get_info()
             self.load_research()
             self.form_research_table()
         self.activate_button()
+
+    def activate_check_box(self, case_type):
+        action = {
+            'criminal': self.person_data_form.ud_rb.setChecked,
+            'incident': self.person_data_form.kusp_rb.setChecked,
+            'requisition': self.person_data_form.req_rb.setChecked
+        }
+        action[case_type](True)
 
     def load_research(self):
         addressees_id = self.official_person_data_addresses.official_person_id
@@ -108,7 +127,9 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
             )
         event = Event.get_event_by_data(
             case_type=event_data['case_type'],
-            number=event_data['number'])
+            number=event_data['number'],
+            formation_date=event_data['formation_date']
+        )
         if not event:
             event = Event(**event_data)
         research.person = person
