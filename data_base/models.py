@@ -70,7 +70,7 @@ class Research(BaseModel):
     executor_id = Column(Integer, ForeignKey('executor.id'), nullable=False)
     addressees_id = Column(Integer, ForeignKey('addressees.id'), nullable=False)
     event_id = Column(Integer, ForeignKey('event.id'), nullable=False)
-    person = relationship('PersonToCheck', backref='research')
+    person = relationship('PersonToCheck', backref='research', cascade='all,delete-orphan')
     initiator = relationship('Initiator', backref='research')
     executor = relationship('Executor', backref='research')
     addressees = relationship('Addressees', backref='research')
@@ -85,9 +85,12 @@ class Research(BaseModel):
         elif role == 'addressees':
             return session.query(cls).filter_by(addressees_id=off_person_id).first()
 
+    @classmethod
+    def get_last_record(cls):
+        return session.query(cls).order_by(cls.id.desc()).first()
+
     def convert_date(self):
         return self.date_of_recording.strftime('%d.%m.%Y')
-
 
 
 class Person(BaseModel):
@@ -180,8 +183,9 @@ class Event(BaseModel):
         return case[self.case_type] + self.number
 
     @classmethod
-    def get_event_by_data(cls, case_type, number):
-        return session.query(cls).filter_by(case_type=case_type, number=number).first()
+    def get_event_by_data(cls, case_type, number, formation_date):
+        return session.query(cls).filter_by(case_type=case_type, number=number, formation_date=formation_date).first()
+
 
 def init_db():
     Base.metadata.create_all(engine)

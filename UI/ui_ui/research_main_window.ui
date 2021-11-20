@@ -71,7 +71,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QCheckBox" name="checkBox">
+           <widget class="QCheckBox" name="remember_cb">
             <property name="text">
              <string>Запомнить данные</string>
             </property>
