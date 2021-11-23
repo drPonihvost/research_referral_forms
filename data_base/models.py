@@ -10,17 +10,17 @@ from sqlalchemy.orm import relationship, sessionmaker
 DATABASE_NAME = 'test_db.db'
 
 
-def get_script_dir(follow_symlinks=True):
-    if getattr(sys, 'frozen', False):
-        path = os.path.abspath(sys.executable)
-    else:
-        path = inspect.getabsfile(get_script_dir)
-    if follow_symlinks:
-        path = os.path.realpath(path)
-    return os.path.dirname(path)
+# def get_script_dir(follow_symlinks=True):
+#     if getattr(sys, 'frozen', False):
+#         path = os.path.abspath(sys.executable)
+#     else:
+#         path = inspect.getabsfile(get_script_dir)
+#     if follow_symlinks:
+#         path = os.path.realpath(path)
+#     return os.path.dirname(path)
 
 
-engine = create_engine(f'sqlite:///{get_script_dir()}\\{DATABASE_NAME}', echo=True)
+engine = create_engine(f'sqlite:///{os.path.dirname(__file__)}\\{DATABASE_NAME}', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -70,7 +70,7 @@ class Research(BaseModel):
     executor_id = Column(Integer, ForeignKey('executor.id'), nullable=False)
     addressees_id = Column(Integer, ForeignKey('addressees.id'), nullable=False)
     event_id = Column(Integer, ForeignKey('event.id'), nullable=False)
-    person = relationship('PersonToCheck', backref='research', cascade='all,delete-orphan')
+    person = relationship('PersonToCheck', backref='research', cascade='all,delete-orphan', single_parent=True)
     initiator = relationship('Initiator', backref='research')
     executor = relationship('Executor', backref='research')
     addressees = relationship('Addressees', backref='research')
