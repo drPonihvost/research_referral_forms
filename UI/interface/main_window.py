@@ -31,6 +31,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         # signals
         self.add_person.clicked.connect(self.create_research)
         self.change_pb.clicked.connect(self.update_research)
+        self.delete_pb.clicked.connect(self.delete_research)
         self.official_person_data_executor.choice_pb.clicked.connect(self.activate_button)
         self.official_person_data_addresses.choice_pb.clicked.connect(self.activate_button)
         self.official_person_data_initiator.choice_pb.clicked.connect(self.activate_button)
@@ -50,6 +51,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         self.form_pb.setEnabled(enabled)
         bulk_select = True if len(self.research_person_table_tw.selectionModel().selectedRows()) == 1 else False
         self.change_pb.setEnabled(enabled and bulk_select and off_person)
+        self.delete_pb.setEnabled(enabled and bulk_select)
 
     def toggle_radio_button(self, case_type):
         action = {
@@ -105,7 +107,16 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         self.activate_button()
 
     def delete_research(self):
-        pass
+        research_id = self.research_person_table_tw.selectionModel().selectedRows(0)[0].data()
+        record = Research.get_by_id(research_id)
+        event_id = record.event.id
+        person_id = record.person.id
+        event = Research.get_by_other_person(event_id, person_id)
+        if record:
+            record.delete()
+            if not event:
+                Event.get_by_id(event_id).delete()
+        self.form_research_table()
 
     def autofill(self, record):
         if self.sender().objectName() == 'change_pb':

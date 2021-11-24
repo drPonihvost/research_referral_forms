@@ -1,6 +1,4 @@
-import inspect
 import os
-import sys
 from datetime import datetime
 
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Boolean
@@ -8,7 +6,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
 DATABASE_NAME = 'test_db.db'
-
 
 # def get_script_dir(follow_symlinks=True):
 #     if getattr(sys, 'frozen', False):
@@ -20,7 +17,7 @@ DATABASE_NAME = 'test_db.db'
 #     return os.path.dirname(path)
 
 
-engine = create_engine(f'sqlite:///{os.path.dirname(__file__)}\\{DATABASE_NAME}', echo=True)
+engine = create_engine(f'sqlite:///{os.path.dirname(__file__)}\\{DATABASE_NAME}')
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -88,6 +85,10 @@ class Research(BaseModel):
     @classmethod
     def get_last_record(cls):
         return session.query(cls).order_by(cls.id.desc()).first()
+
+    @classmethod
+    def get_by_other_person(cls, event_id, person_id):
+        return session.query(cls).filter(cls.event_id == event_id, cls.person_id != person_id).first()
 
     def convert_date(self):
         return self.date_of_recording.strftime('%d.%m.%Y')
@@ -188,4 +189,33 @@ class Event(BaseModel):
 
 
 def init_db():
-    Base.metadata.create_all(engine)
+    path = os.path.dirname(__file__)
+    if not os.path.exists(f'{path}\\{DATABASE_NAME}'):
+        Base.metadata.create_all(engine)
+        Addressees(
+            department='ЭКЦ МВД по Республике Хакасия',
+            post='Начальник',
+            rank='полковник полиции',
+            surname='Лысенко',
+            name='Тимур',
+            middle_name='Михайлович'
+        ).save()
+        Initiator(
+            department='ОМВД России по Таштыпскому району',
+            post='Начальник',
+            rank='полковник полиции',
+            surname='Грачев',
+            name='Александр',
+            middle_name='Александрович'
+        ).save()
+        Executor(
+            department='ОУР ОМВД России по Таштыпскому району',
+            post='Оперуполномоченный',
+            rank='капитан полиции',
+            surname='Пупкин',
+            name='Василий',
+            middle_name='Васильевич'
+        ).save()
+    else:
+        Base.metadata.create_all(engine)
+
