@@ -71,7 +71,7 @@ class PersonaReferralForm(QDialog, Ui_persona_referal_form):
             name=self.name_le.text(),
             middle_name=self.middle_name_le.text(),
             male=self.male_rb.isChecked(),
-            date_of_birth=self.date_of_birth_de.date().toPython(),
+            date_of_birth=self.date_of_birth_de.dateTime().toPython(),
             birthplace=self.birthplace_le.text(),
             plot=self.plot_te.toPlainText()
         )

@@ -18,30 +18,48 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         self.setupUi(self)
         self.research_person_table_tw.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.person_data_form = None
-        self.data = {}
+        self.data = dict()
         self.official_person_data_initiator = OfficialPersonData(role='initiator')
         self.initiator_lo.addWidget(self.official_person_data_initiator)
         self.official_person_data_addresses = OfficialPersonData(role='addressees')
         self.addressee_lo.addWidget(self.official_person_data_addresses)
         self.official_person_data_executor = OfficialPersonData(role='executor')
         self.executor_lo.addWidget(self.official_person_data_executor)
-        self.verify_official_person()
         self.form_research_table()
         self.activate_button()
 
         # signals
-        self.add_person.clicked.connect(self.create_person)
-        self.official_person_data_executor.choice_pb.clicked.connect(self.verify_official_person)
-        self.official_person_data_addresses.choice_pb.clicked.connect(self.verify_official_person)
-        self.official_person_data_initiator.choice_pb.clicked.connect(self.verify_official_person)
+        self.add_person.clicked.connect(self.create_research)
+        self.change_pb.clicked.connect(self.update_research)
+        self.delete_pb.clicked.connect(self.delete_research)
+        self.official_person_data_executor.choice_pb.clicked.connect(self.activate_button)
+        self.official_person_data_addresses.choice_pb.clicked.connect(self.activate_button)
+        self.official_person_data_initiator.choice_pb.clicked.connect(self.activate_button)
         self.form_pb.clicked.connect(self.create_research_blanks)
         self.research_person_table_tw.itemSelectionChanged.connect(self.activate_button)
 
     def activate_button(self):
+        off_person = False
+        if self.official_person_data_initiator.name_le.text() and \
+                self.official_person_data_executor.name_le.text() and \
+                self.official_person_data_addresses.name_le.text():
+            self.add_person.setEnabled(True)
+            off_person = True
+        else:
+            self.add_person.setEnabled(False)
         enabled = True if self.research_person_table_tw.selectionModel().selectedRows() else False
         self.form_pb.setEnabled(enabled)
         bulk_select = True if len(self.research_person_table_tw.selectionModel().selectedRows()) == 1 else False
-        self.change_pb.setEnabled(enabled and bulk_select)
+        self.change_pb.setEnabled(enabled and bulk_select and off_person)
+        self.delete_pb.setEnabled(enabled and bulk_select)
+
+    def toggle_radio_button(self, case_type):
+        action = {
+            'criminal': self.person_data_form.ud_rb.setChecked,
+            'incident': self.person_data_form.kusp_rb.setChecked,
+            'requisition': self.person_data_form.req_rb.setChecked
+        }
+        action[case_type](True)
 
     def form_research_table(self):
         self.research_person_table_tw.setRowCount(0)
@@ -60,41 +78,63 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
             self.research_person_table_tw.setItem(row_position, 8, QTableWidgetItem(i.event.convert_date()))
             self.research_person_table_tw.setItem(row_position, 9, QTableWidgetItem(i.event.plot))
 
-    def verify_official_person(self):
-        if self.official_person_data_initiator.name_le.text() and \
-                self.official_person_data_executor.name_le.text() and \
-                self.official_person_data_addresses.name_le.text():
-            self.add_person.setEnabled(True)
-        else:
-            self.add_person.setDisabled(True)
-
-    def create_person(self):
+    def create_research(self):
         self.person_data_form = PersonaReferralForm()
         if self.remember_cb.isChecked():
             record = Research.get_last_record()
             if record:
-                self.activate_check_box(record.event.case_type)
-                self.person_data_form.set_event_type()
-                self.person_data_form.event_description_form.number_cb.setText(record.event.number)
-                self.person_data_form.event_description_form.formation_date_le.setDate(record.event.formation_date)
-                self.person_data_form.plot_te.setText(record.event.plot)
-                if record.event.case_type != 'requisition':
-                    self.person_data_form.event_description_form.item_de.setCurrentText(record.event.article)
-                    self.person_data_form.event_description_form.number_cb_2.setText(record.event.address)
+                self.autofill(record)
         event = self.person_data_form.exec()
         if event:
             self.data = self.person_data_form.get_info()
-            self.load_research()
+            research = self.load_research()
+            research.save()
             self.form_research_table()
         self.activate_button()
 
-    def activate_check_box(self, case_type):
-        action = {
-            'criminal': self.person_data_form.ud_rb.setChecked,
-            'incident': self.person_data_form.kusp_rb.setChecked,
-            'requisition': self.person_data_form.req_rb.setChecked
-        }
-        action[case_type](True)
+    def update_research(self):
+        self.person_data_form = PersonaReferralForm()
+        research_id = self.research_person_table_tw.selectionModel().selectedRows(0)[0].data()
+        record = Research.get_by_id(research_id)
+        if record:
+            self.autofill(record)
+            event = self.person_data_form.exec()
+            if event:
+                self.data = self.person_data_form.get_info()
+                changed_record = self.change_research(record)
+                changed_record.update()
+                self.form_research_table()
+        self.activate_button()
+
+    def delete_research(self):
+        research_id = self.research_person_table_tw.selectionModel().selectedRows(0)[0].data()
+        record = Research.get_by_id(research_id)
+        event_id = record.event.id
+        person_id = record.person.id
+        event = Research.get_by_other_person(event_id, person_id)
+        if record:
+            record.delete()
+            if not event:
+                Event.get_by_id(event_id).delete()
+        self.form_research_table()
+
+    def autofill(self, record):
+        if self.sender().objectName() == 'change_pb':
+            self.person_data_form.surname_le.setText(record.person.surname)
+            self.person_data_form.name_le.setText(record.person.name)
+            self.person_data_form.middle_name_le.setText(record.person.middle_name)
+            if not record.person.male:
+                self.person_data_form.female_rb.toggle()
+            self.person_data_form.date_of_birth_de.setDate(record.person.birthday)
+            self.person_data_form.birthplace_le.setText(record.person.birthplace)
+        self.toggle_radio_button(record.event.case_type)
+        self.person_data_form.set_event_type()
+        self.person_data_form.event_description_form.number_cb.setText(record.event.number)
+        self.person_data_form.event_description_form.formation_date_le.setDate(record.event.formation_date)
+        self.person_data_form.plot_te.setText(record.event.plot)
+        if record.event.case_type != 'requisition':
+            self.person_data_form.event_description_form.item_de.setCurrentText(record.event.article)
+            self.person_data_form.event_description_form.number_cb_2.setText(record.event.address)
 
     def load_research(self):
         addressees_id = self.official_person_data_addresses.official_person_id
@@ -119,12 +159,11 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
             number=self.data['number'],
             formation_date=self.data['formation_date'],
         )
-        if self.data['case_category'] != 'requisition':
-            event_data.update(
-                address=self.data['address'],
-                article=self.data['item'],
-                plot=self.data['plot']
-            )
+        event_data.update(
+            address=self.data['address'] if self.data['case_category'] != 'requisition' else '',
+            article=self.data['item'] if self.data['case_category'] != 'requisition' else '',
+            plot=self.data['plot']
+        )
         event = Event.get_event_by_data(
             case_type=event_data['case_type'],
             number=event_data['number'],
@@ -134,8 +173,28 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
             event = Event(**event_data)
         research.person = person
         research.event = event
-        research.save()
-        self.activate_button()
+        return research
+
+    def change_research(self, record):
+        addressees_id = self.official_person_data_addresses.official_person_id
+        executor_id = self.official_person_data_executor.official_person_id
+        initiator_id = self.official_person_data_initiator.official_person_id
+        record.addressees_id = addressees_id
+        record.executor_id = executor_id
+        record.initiator_id = initiator_id
+        record.person.surname = self.data['surname']
+        record.person.name = self.data['name']
+        record.person.middle_name = self.data['middle_name']
+        record.person.birthday = self.data['date_of_birth']
+        record.person.birthplace = self.data['birthplace']
+        record.person.male = self.data['male']
+        record.event.case_type = self.data['case_category']
+        record.event.number = self.data['number']
+        record.event.formation_date = self.data['formation_date']
+        record.event.address = self.data['address'] if self.data['case_category'] != 'requisition' else ''
+        record.event.article = self.data['item'] if self.data['case_category'] != 'requisition' else ''
+        record.event.plot = self.data['plot']
+        return record
 
     def create_research_blanks(self):
         indexes = self.research_person_table_tw.selectionModel().selectedRows(0)

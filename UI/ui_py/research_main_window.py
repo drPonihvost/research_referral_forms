@@ -54,6 +54,11 @@ class Ui_research_main_window(object):
 
         self.horizontalLayout.addWidget(self.form_pb)
 
+        self.delete_pb = QPushButton(self.centralwidget)
+        self.delete_pb.setObjectName(u"delete_pb")
+
+        self.horizontalLayout.addWidget(self.delete_pb)
+
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer)
@@ -151,6 +156,7 @@ class Ui_research_main_window(object):
         self.add_person.setText(QCoreApplication.translate("research_main_window", u"\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c", None))
         self.change_pb.setText(QCoreApplication.translate("research_main_window", u"\u0418\u0437\u043c\u0435\u043d\u0438\u0442\u044c", None))
         self.form_pb.setText(QCoreApplication.translate("research_main_window", u"\u0421\u0444\u043e\u0440\u043c\u0438\u0440\u043e\u0432\u0430\u0442\u044c", None))
+        self.delete_pb.setText(QCoreApplication.translate("research_main_window", u"\u0423\u0434\u0430\u043b\u0438\u0442\u044c", None))
         self.remember_cb.setText(QCoreApplication.translate("research_main_window", u"\u0417\u0430\u043f\u043e\u043c\u043d\u0438\u0442\u044c \u0434\u0430\u043d\u043d\u044b\u0435", None))
         ___qtablewidgetitem = self.research_person_table_tw.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("research_main_window", u"\u2116 \u043f/\u043f", None));
