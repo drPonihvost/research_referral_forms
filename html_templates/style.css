@@ -1,0 +1,110 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+
+        display: grid;
+
+        grid-template-areas:
+            "A A A A   A A B B   B B B B"
+            "C C C C   C C C C   C C C C"
+            "D D D D   D D E E   E E E E"
+            "F F F F   F F F F   F F F F";
+        font-family: Times, 'Times New Roman', serif;;
+        font-size: 14pt;
+        line-height: 1.15;
+        color: #333366;
+        word-wrap: break-word;
+    }
+
+    .info {
+        grid-area: A;
+        text-align: center;
+        margin-right: 25mm;
+    }
+
+    .emblem > img {
+        width: 35mm;
+        height: 15mm;
+    }
+
+    img {
+        width: 100%;
+        page-break-inside: avoid;
+    }
+
+    .number_table {
+        width: 100%;
+    }
+
+    .number_table > table {
+        word-wrap: normal;
+    }
+
+    .addressees {
+        grid-area: B;
+        padding-top: 37mm;
+    }
+
+    .plot {
+        grid-area: C;
+    }
+
+    .plot_text {
+        text-align: justify;
+        text-indent: 15mm;
+    }
+
+    .initiator {
+        grid-area: D;
+    }
+
+    .signature {
+        grid-area: E;
+    }
+
+    .qr {
+        grid-area: F;
+    }
+
+    .borderbott {
+        width: 100%;
+        display: table;
+    }
+
+    span {
+        display: table-cell;
+        word-wrap: break-word;
+    }
+
+    .line {
+        width: 50%;
+        border-bottom: 1px solid black;
+    }
+
+@media print {
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    .text, .emblem-image {
+        break-after: auto;
+        break-inside: auto;
+    }
+    .print-container {
+        color: black;
+    }
+    @page .print-container {
+        size: A4;
+        margin: 20mm 20mm 15mm 20mm;
+
+    }
+    @page :first .print-container {
+        size: A4;
+        margin-top: 37mm;
+    }
+}
