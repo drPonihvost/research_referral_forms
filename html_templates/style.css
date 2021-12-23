@@ -1,110 +1,181 @@
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Times New Roman, 'Times New Roman', Times, serif;
+    font-size: 13pt;
 }
 
-.container {
+table { page-break-inside: auto;}
+tr    { page-break-inside: avoid; page-break-after: auto}
+thead { display: table-header-group }
+tfoot { display: table-footer-group }
 
-        display: grid;
+.print-container {}
 
-        grid-template-areas:
-            "A A A A   A A B B   B B B B"
-            "C C C C   C C C C   C C C C"
-            "D D D D   D D E E   E E E E"
-            "F F F F   F F F F   F F F F";
-        font-family: Times, 'Times New Roman', serif;;
-        font-size: 14pt;
-        line-height: 1.15;
-        color: #333366;
-        word-wrap: break-word;
-    }
+.research-header {
+    display: flex;
+    padding-top: 17mm;
+}
 
-    .info {
-        grid-area: A;
-        text-align: center;
-        margin-right: 25mm;
-    }
+.init-division-info {
+    width: 55%;
+}
 
-    .emblem > img {
-        width: 35mm;
-        height: 15mm;
-    }
+.emblem-img {
+    text-align: center;
+}
 
-    img {
-        width: 100%;
-        page-break-inside: avoid;
-    }
+.emblem-img > img {
+    width: 33.6mm;
+    height: 19.3mm;
+}
 
-    .number_table {
-        width: 100%;
-    }
+.text-title-bold > p {
+    font-weight: bold;
+    text-align: center;
+}
 
-    .number_table > table {
-        word-wrap: normal;
-    }
+.text-title-bold > p {
+    font-size: 11pt;
+}
 
-    .addressees {
-        grid-area: B;
-        padding-top: 37mm;
-    }
+.text-bold {
+    font-weight: bold;
+    text-align: center;
+}
 
-    .plot {
-        grid-area: C;
-    }
+.text-bold > p {
+    font-size: 10pt;
+}
 
-    .plot_text {
-        text-align: justify;
-        text-indent: 15mm;
-    }
+.text {
+    text-align: center;
+}
 
-    .initiator {
-        grid-area: D;
-    }
+.text > p {
+    font-size: 11pt;
+}
 
-    .signature {
-        grid-area: E;
-    }
 
-    .qr {
-        grid-area: F;
-    }
+.hand-form {}
 
-    .borderbott {
-        width: 100%;
-        display: table;
-    }
+.hand-form > table {
+    width: 100%;
+    text-align: center;
+    font-size: 11pt;
+}
 
-    span {
-        display: table-cell;
-        word-wrap: break-word;
-    }
+.line {
+    border-bottom: 1px solid black;
+}
 
-    .line {
-        width: 50%;
-        border-bottom: 1px solid black;
-    }
+.addressees {
+    width: 45%;
+    padding-top: 19.3mm;
+    padding-left: 27mm;
+}
+
+.post-division {}
+
+.rank-name {}
+
+.research-plot {}
+
+.plot-title {
+    text-align: center;
+    padding-top: 12.5mm;
+    padding-bottom: 12.5mm;
+}
+
+.plot {
+    display: flex;
+    /*padding-bottom: 12.5mm;*/
+    width: 100%;
+}
+
+.plot-event {
+    width: 100%;
+}
+
+.qr-container {
+    align-self: center;
+}
+
+.plot-qr {
+    width: 40mm;
+    height: 40mm;
+}
+
+.permission {}
+
+.permission > p {
+    text-indent: 12.5mm;
+}
+
+.annexes {}
+
+.annexes > p {
+    text-indent: 12.5mm;
+}
+
+.research-person {
+    padding-top: 5mm;
+}
+
+.person-table {
+    display: flex;
+    page-break-inside: avoid;
+}
+
+.serial-number {
+    align-self: center;
+}
+
+.person-info {
+    width: 100%;
+    align-self: center;
+}
+
+.serial-number {
+    width: 10mm;
+    font-size: 13pt;
+    text-align: center;
+}
+
+.person-qr {
+    align-self: center;
+    width: 40mm;
+    height: 40mm;
+}
+
+.person-info {}
+
+.research-permission {
+    padding-top: 15mm;
+    page-break-inside: avoid;
+}
+
+.signatures {
+    display: flex;
+    width: 100%;
+}
+
+.signatures-initiator {
+    width: 50%;
+    text-align: left;
+}
+
+.signatures-initials {
+    display: flex;
+    width: 50%;
+    justify-content: flex-end;
+    align-self: flex-end;
+}
+
+.initials {}
 
 @media print {
-    * {
-        margin: 0;
-        padding: 0;
-    }
-
-    .text, .emblem-image {
-        break-after: auto;
-        break-inside: auto;
-    }
-    .print-container {
-        color: black;
-    }
-    @page .print-container {
+    @page {
         size: A4;
-        margin: 20mm 20mm 15mm 20mm;
-
-    }
-    @page :first .print-container {
-        size: A4;
-        margin-top: 37mm;
     }
 }
