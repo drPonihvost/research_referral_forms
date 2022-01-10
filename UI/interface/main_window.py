@@ -71,7 +71,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
             self.research_person_table_tw.setItem(row_position, 1, QTableWidgetItem(i.convert_date()))
             self.research_person_table_tw.setItem(row_position, 2, QTableWidgetItem(i.person.surname))
             self.research_person_table_tw.setItem(row_position, 3, QTableWidgetItem(i.person.name))
-            self.research_person_table_tw.setItem(row_position, 4, QTableWidgetItem(i.person.middle_name))
+            self.research_person_table_tw.setItem(row_position, 4, QTableWidgetItem(i.person.patronymic))
             self.research_person_table_tw.setItem(row_position, 5, QTableWidgetItem(i.person.convert_date()))
             self.research_person_table_tw.setItem(row_position, 6, QTableWidgetItem(i.person.birthplace))
             self.research_person_table_tw.setItem(row_position, 7, QTableWidgetItem(i.event.number_to_string()))
@@ -122,7 +122,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         if self.sender().objectName() == 'change_pb':
             self.person_data_form.surname_le.setText(record.person.surname)
             self.person_data_form.name_le.setText(record.person.name)
-            self.person_data_form.middle_name_le.setText(record.person.middle_name)
+            self.person_data_form.middle_name_le.setText(record.person.patronymic)
             if not record.person.male:
                 self.person_data_form.female_rb.toggle()
             self.person_data_form.date_of_birth_de.setDate(record.person.birthday)
@@ -149,7 +149,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         person = PersonToCheck(
             surname=self.data['surname'],
             name=self.data['name'],
-            middle_name=self.data['middle_name'],
+            patronymic=self.data['middle_name'],
             birthday=self.data['date_of_birth'],
             birthplace=self.data['birthplace'],
             male=self.data['male']
@@ -184,7 +184,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         record.initiator_id = initiator_id
         record.person.surname = self.data['surname']
         record.person.name = self.data['name']
-        record.person.middle_name = self.data['middle_name']
+        record.person.patronymic = self.data['middle_name']
         record.person.birthday = self.data['date_of_birth']
         record.person.birthplace = self.data['birthplace']
         record.person.male = self.data['male']
@@ -201,7 +201,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         for i in indexes:
             item = Research.get_by_id(i.data())
 
-            doc = DocxTemplate("word_templates/research_referral_person_template.docx")
+            # doc = DocxTemplate("word_templates/research_referral_person_template.docx")
             context_to_qr = dict(
                 organization=item.initiator.department.title(),
                 addr_post=item.addressees.post.title(),
@@ -212,26 +212,31 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
                 formation_date=item.event.convert_date(),
                 article=item.event.article,
                 plot=item.event.plot,
-                surname=item.person.surname,
-                name=item.person.name,
-                middle_name=item.person.middle_name,
-                birthday=item.person.convert_date(),
-                birthplace=item.person.birthplace,
-                red_name=item.person.create_name_reduction(),
-                init_post=item.initiator.post.title(),
-                init_rank=item.initiator.rank,
-                init_name=item.initiator.create_name_reduction()
+                # surname=item.person.surname,
+                # name=item.person.name,
+                # middle_name=item.person.middle_name,
+                # birthday=item.person.convert_date(),
+                # birthplace=item.person.birthplace,
+                # red_name=item.person.create_name_reduction(),
+                # init_post=item.initiator.post.title(),
+                # init_rank=item.initiator.rank,
+                # init_name=item.initiator.create_name_reduction()
             )
-            json_obj = json.dumps(context_to_qr, indent=4, ensure_ascii=False)  # ensure_ascii=False
-            print(len(str(json_obj)))
-            img = qrcode.make(json_obj)
+
+            test_str = 'Тестовая строка кириллицей'
+            test_str = bytes(test_str, encoding='utf-8')
+            # json_obj = context_to_qr
+            # print(json_obj)# ensure_ascii=False
+            # print(len(json_obj))
+            print(test_str)
+            img = qrcode.make(test_str)
             img.save('qr_image/qr_image.png')
-            image = InlineImage(doc, image_descriptor='qr_image/qr_image.png', width=Mm(50), height=Mm(50))
-            context_to_qr['qr'] = image
-            doc.render(context_to_qr)
-            docs_name = '{}_{}_{}_{}'.format(item.id, context_to_qr['surname'], context_to_qr['name'],
-                                             context_to_qr['middle_name'])
-            doc.save(f"research_directions/{docs_name}.docx")
+            # image = InlineImage(doc, image_descriptor='qr_image/qr_image.png', width=Mm(50), height=Mm(50))
+            # context_to_qr['qr'] = image
+            # doc.render(context_to_qr)
+            # docs_name = '{}_{}_{}_{}'.format(item.id, context_to_qr['surname'], context_to_qr['name'],
+            #                                  context_to_qr['middle_name'])
+            # doc.save(f"research_directions/{docs_name}.docx")
         self.activate_button()
 
 

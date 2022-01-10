@@ -61,49 +61,48 @@ class BaseModel(Base):
 
 class Research(BaseModel):
     __tablename__ = 'research'
+
     date_of_recording = Column(DateTime, default=datetime.utcnow)
-    person_id = Column(Integer, ForeignKey('person_to_check.id'), nullable=False)
-    initiator_id = Column(Integer, ForeignKey('initiator.id'), nullable=False)
-    executor_id = Column(Integer, ForeignKey('executor.id'), nullable=False)
-    addressees_id = Column(Integer, ForeignKey('addressees.id'), nullable=False)
+    date_of_change = Column(DateTime, default=datetime.utcnow)
+    date_of_dispatch = Column(DateTime)
     event_id = Column(Integer, ForeignKey('event.id'), nullable=False)
-    person = relationship('PersonToCheck', backref='research', cascade='all,delete-orphan', single_parent=True)
+    initiator_id = Column(Integer, ForeignKey('initiator.id'))
+    executor_id = Column(Integer, ForeignKey('executor.id'))
+    addressee_id = Column(Integer, ForeignKey('addressee.id'))
+    event = relationship('Event', backref='research')
     initiator = relationship('Initiator', backref='research')
     executor = relationship('Executor', backref='research')
-    addressees = relationship('Addressees', backref='research')
-    event = relationship('Event', backref='research')
-
-    @classmethod
-    def get_by_off_person_id(cls, role, off_person_id):
-        if role == 'initiator':
-            return session.query(cls).filter_by(initiator_id=off_person_id).first()
-        elif role == 'executor':
-            return session.query(cls).filter_by(executor_id=off_person_id).first()
-        elif role == 'addressees':
-            return session.query(cls).filter_by(addressees_id=off_person_id).first()
+    addressee = relationship('Addressee', backref='research')
 
     @classmethod
     def get_last_record(cls):
-        return session.query(cls).order_by(cls.id.desc()).first()
+        return session.query(cls).order_by(cls.id).desc().first()
 
     @classmethod
     def get_by_other_person(cls, event_id, person_id):
         return session.query(cls).filter(cls.event_id == event_id, cls.person_id != person_id).first()
 
-    def convert_date(self):
+    def convert_recording_date(self):
         return self.date_of_recording.strftime('%d.%m.%Y')
+
+    def convert_change_date(self):
+        return self.date_of_recording.strftime('%d.%m.%Y')
+
+    def convert_dispatch_date(self):
+        if self.date_of_dispatch:
+            return self.date_of_recording.strftime('%d.%m.%Y')
 
 
 class Person(BaseModel):
     __abstract__ = True
     surname = Column(String)
     name = Column(String)
-    middle_name = Column(String)
+    patronymic = Column(String)
 
-    def __init__(self, surname, name, middle_name):
+    def __init__(self, surname, name, patronymic):
         self.surname = surname
         self.name = name
-        self.middle_name = middle_name
+        self.patronymic = patronymic
 
 
 class PersonToCheck(Person):
@@ -111,46 +110,106 @@ class PersonToCheck(Person):
     birthday = Column(DateTime)
     birthplace = Column(String)
     male = Column(Boolean, nullable=False)
+    research_id = Column(Integer, ForeignKey('research.id'))
+    research = relationship('Research', backref='person_to_check')
 
-    def __init__(self, surname, name, middle_name, birthday, birthplace, male):
-        super().__init__(surname, name, middle_name)
+    def __init__(self, surname, name, patronymic, birthday, birthplace, male, research):
+        super().__init__(surname, name, patronymic)
         self.birthday = birthday
         self.birthplace = birthplace
         self.male = male
+        self.research = research
+
+    @classmethod
+    def get_count_by_research(cls, research_id):
+        return session.query(cls).filter_by(research_id=research_id).count()
 
     def create_name_reduction(self):
-        return f'{self.surname} {self.name[0].title()}.{self.middle_name[0].title()}.'
+        return f'{self.surname} {self.name[0].title()}.{self.patronymic[0].title()}.'
 
     def convert_date(self):
         return self.birthday.strftime('%d.%m.%Y')
+
+    def get_gender(self):
+        return 'Мужской' if self.male else 'Женский'
+
+
+class Division(BaseModel):
+    __tablename__ = 'division'
+    division_full_name = Column(String)
+    division_red_name = Column(String, unique=True)
+    person = Column(String)
+
+    def __init__(self, division_full_name, division_red_name, person):
+        self.division_full_name = division_full_name
+        self.division_red_name = division_red_name
+        self.person = person
+
+    @classmethod
+    def get_by_full_and_red_name(cls, division_red_name, division_full_name, person):
+        return session.query(cls).filter(
+            cls.division_red_name == division_red_name,
+            cls.division_full_name == division_full_name,
+            cls.person == person
+        ).first()
+
+    @classmethod
+    def get_by_red_name(cls, division_red_name,  person):
+        return session.query(cls).filter(
+            cls.division_red_name == division_red_name,
+            cls.person == person
+        ).first()
+
+    @classmethod
+    def get_by_person(cls, person):
+        return session.query(cls).filter_by(person=person).all()
 
 
 class OfficialPerson(Person):
     __abstract__ = True
     post = Column(String)
     rank = Column(String)
-    department = Column(String)
 
-    def __init__(self, surname, name, middle_name, post, rank, department):
-        super().__init__(surname, name, middle_name)
+    def __init__(self, surname, name, patronymic, post, rank):
+        super().__init__(surname, name, patronymic)
         self.post = post
         self.rank = rank
-        self.department = department
 
     def create_name_reduction(self):
-        return f'{self.name[0].title()}.{self.middle_name[0].title()}. {self.surname}'
+        return f'{self.name[0].title()}.{self.patronymic[0].title()}. {self.surname}'
 
 
 class Initiator(OfficialPerson):
     __tablename__ = 'initiator'
 
+    division_id = Column(Integer, ForeignKey('division.id'))
+    division = relationship('Division', backref='initiator')
+
+    def __init__(self, surname, name, patronymic, post, rank, division):
+        super().__init__(surname, name, patronymic, post, rank)
+        self.division = division
+
 
 class Executor(OfficialPerson):
     __tablename__ = 'executor'
 
+    division_id = Column(Integer, ForeignKey('division.id'))
+    division = relationship('Division', backref='executor')
 
-class Addressees(OfficialPerson):
-    __tablename__ = 'addressees'
+    def __init__(self, surname, name, patronymic, post, rank, division):
+        super().__init__(surname, name, patronymic, post, rank)
+        self.division = division
+
+
+class Addressee(OfficialPerson):
+    __tablename__ = 'addressee'
+
+    division_id = Column(Integer, ForeignKey('division.id'))
+    division = relationship('Division', backref='addressee')
+
+    def __init__(self, surname, name, patronymic, post, rank, division):
+        super().__init__(surname, name, patronymic, post, rank)
+        self.division = division
 
 
 class Event(BaseModel):
@@ -158,28 +217,33 @@ class Event(BaseModel):
     case_type = Column(String)
     number = Column(String)
     formation_date = Column(DateTime)
+    incident_date = Column(DateTime)
     article = Column(String)
     address = Column(String)
     plot = Column(String)
 
-    def __init__(self, case_type, number, formation_date, article, address, plot):
+    def __init__(self, case_type, number, formation_date, incident_date, article, address, plot):
         self.case_type = case_type
         self.number = number
         self.formation_date = formation_date
+        self.incident_date = incident_date
         self.article = article
         self.address = address
         self.plot = plot
 
-    def convert_date(self):
+    def convert_formation_date(self):
         return self.formation_date.strftime('%d.%m.%Y')
+
+    def convert_incident_date(self):
+        return self.incident_date.strftime('%d.%m.%Y')
 
     def number_to_string(self):
         case = {
             'criminal': 'у/д № ',
             'incident': 'КУСП № ',
             'search_case': 'РД № ',
-            'inspection_material': '',
-            'requisition': 'исх. № '
+            'inspection_material': 'Материалы проверки № ',
+            'other': ''
         }
         return case[self.case_type] + self.number
 
@@ -192,30 +256,106 @@ def init_db():
     path = os.path.dirname(__file__)
     if not os.path.exists(f'{path}\\{DATABASE_NAME}'):
         Base.metadata.create_all(engine)
-        Addressees(
-            department='ЭКЦ МВД по Республике Хакасия',
-            post='Начальник',
-            rank='полковник полиции',
+        Addressee(
+            division=Division(
+                division_full_name='Экспертно криминалистический центр МВД по Республике Хакасия',
+                division_red_name='ЭКЦ МВД по Республике Хакасия',
+                person='addressee'
+            ),
+            post='Начальнику',
+            rank='полковнику полиции',
             surname='Лысенко',
-            name='Тимур',
-            middle_name='Михайлович'
+            name='Тимуру',
+            patronymic='Михайловичу'
+        ).save()
+        Addressee(
+            division=Division.get_by_red_name(
+                division_red_name='ЭКЦ МВД по Республике Хакасия',
+                person='addressee'
+            ),
+            post='Врио начальника',
+            rank='полковнику полиции',
+            surname='Кузнецову',
+            name='Дмитрию',
+            patronymic='Александровичу'
         ).save()
         Initiator(
-            department='ОМВД России по Таштыпскому району',
+            division=Division(
+                division_full_name='Отдел министерства внутренних дел России по Таштыпскому району',
+                division_red_name='ОМВД России по Таштыпскому району',
+                person='initiator'
+            ),
             post='Начальник',
             rank='полковник полиции',
             surname='Грачев',
             name='Александр',
-            middle_name='Александрович'
+            patronymic='Александрович'
         ).save()
         Executor(
-            department='ОУР ОМВД России по Таштыпскому району',
+            division=Division(
+                division_full_name='Отдел уголовного розыска МВД России по Таштыпскому району',
+                division_red_name='ОУР ОМВД России по Таштыпскому району',
+                person='executor'
+            ),
             post='Оперуполномоченный',
             rank='капитан полиции',
             surname='Пупкин',
             name='Василий',
-            middle_name='Васильевич'
+            patronymic='Васильевич'
+        ).save()
+        Research(
+            event=Event(
+                case_type='criminal',
+                number='12101950003000045',
+                formation_date=datetime(2021, 3, 17, 0, 0, 0),
+                incident_date=datetime(2021, 3, 19, 0, 0, 0),
+                article='158',
+                address='Республика Хакасия, Таштыпский район, с. Таштып, ул. Березовая, д. 2',
+                plot='Кража коровы принадлежащей Иванову Т.А.',
+            )
+        ).save()
+        research = Research(
+            event=Event(
+                case_type='incident',
+                number='45612',
+                formation_date=datetime(2021, 8, 23, 0, 0, 0),
+                incident_date=datetime(2021, 8, 23, 0, 0, 0),
+                article='158',
+                address='Республика Хакасия, Таштыпский район, с. Таштып, Мира, д. 2',
+                plot='Кража мотоцикла принадлежащего Романову А.А. с проникновением в надворную постройку',
+            )
+        )
+        PersonToCheck(
+            surname='Петров',
+            name='Василий',
+            patronymic='Иванович',
+            birthday=datetime(1991, 11, 24, 0, 0, 0),
+            birthplace='Республика Хакасия, Таштыпский район, с. Таштып',
+            male=True,
+            research=research
+        ).save()
+        PersonToCheck(
+            surname='Воротилов',
+            name='Дмитрий',
+            patronymic='Иванович',
+            birthday=datetime(1974, 2, 13, 0, 0, 0),
+            birthplace='Республика Хакасия, Таштыпский район, с. Таштып',
+            male=True,
+            research=research
+        ).save()
+        PersonToCheck(
+            surname='Васильев',
+            name='Денис',
+            patronymic='Викторович',
+            birthday=datetime(1993, 7, 15, 0, 0, 0),
+            birthplace='Республика Хакасия, Таштыпский район, с. Таштып',
+            male=True,
+            research=research
         ).save()
     else:
         Base.metadata.create_all(engine)
+
+
+if __name__ == "__main__":
+    init_db()
 

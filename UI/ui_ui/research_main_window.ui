@@ -23,163 +23,306 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="research">
+         <attribute name="title">
+          <string>Направления на исследование (лица)</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
-           <widget class="QPushButton" name="add_person">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Добавить</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="change_pb">
-            <property name="text">
-             <string>Изменить</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="form_pb">
-            <property name="text">
-             <string>Сформировать</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="delete_pb">
-            <property name="text">
-             <string>Удалить</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <widget class="QPushButton" name="add_person">
+                <property name="minimumSize">
+                 <size>
+                  <width>50</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Создать</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="change_pb">
+                <property name="text">
+                 <string>Изменить</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="form_pb">
+                <property name="text">
+                 <string>Сформировать</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="delete_pb">
+                <property name="text">
+                 <string>Удалить</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_2"/>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="research_person_table_tw">
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+              <attribute name="horizontalHeaderCascadingSectionResizes">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>30</number>
+              </attribute>
+              <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="horizontalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>30</number>
+              </attribute>
+              <column>
+               <property name="text">
+                <string>№ п/п</string>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Дата создания</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Фамилия</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Имя</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Отчество</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Дата рождения</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Место рождения</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Материалы</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Зарегистрировано</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Событие</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
+        </widget>
+        <widget class="QWidget" name="tab_4">
+         <attribute name="title">
+          <string>Направления на исследование (родственники)</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
-           <widget class="QCheckBox" name="remember_cb">
-            <property name="text">
-             <string>Запомнить данные</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QPushButton" name="add_person_4">
+                <property name="minimumSize">
+                 <size>
+                  <width>50</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Создать</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="change_pb_2">
+                <property name="text">
+                 <string>Изменить</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="form_pb_2">
+                <property name="text">
+                 <string>Сформировать</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="delete_pb_2">
+                <property name="text">
+                 <string>Удалить</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_5"/>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="research_person_table_tw_2">
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+              <attribute name="horizontalHeaderCascadingSectionResizes">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="horizontalHeaderMinimumSectionSize">
+               <number>30</number>
+              </attribute>
+              <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="horizontalHeaderStretchLastSection">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>30</number>
+              </attribute>
+              <column>
+               <property name="text">
+                <string>№ п/п</string>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Дата создания</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Фамилия</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Имя</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Отчество</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Дата рождения</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Место рождения</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Материалы</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Зарегистрировано</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Событие</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
-        </item>
-        <item>
-         <widget class="QTableWidget" name="research_person_table_tw">
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-          <attribute name="horizontalHeaderCascadingSectionResizes">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="horizontalHeaderMinimumSectionSize">
-           <number>30</number>
-          </attribute>
-          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="verticalHeaderDefaultSectionSize">
-           <number>30</number>
-          </attribute>
-          <column>
-           <property name="text">
-            <string>№ п/п</string>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Дата направления</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Фамилия</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Имя</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Отчество</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Дата рождения</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Место рождения</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Материалы</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Зарегистрировано</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Событие</string>
-           </property>
-          </column>
-         </widget>
-        </item>
-       </layout>
+        </widget>
+        <widget class="QWidget" name="tab_2">
+         <attribute name="title">
+          <string>Лица направленные на исследование</string>
+         </attribute>
+        </widget>
+       </widget>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">

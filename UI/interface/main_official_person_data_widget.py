@@ -95,7 +95,7 @@ class OfficialPersonChoice(QDialog, QWidget, Ui_official_person_choice):
         self.create_person_widget.rank_le.setText(item.rank)
         self.create_person_widget.name_le.setText(item.name)
         self.create_person_widget.surname_le.setText(item.surname)
-        self.create_person_widget.middle_name_le.setText(item.middle_name)
+        self.create_person_widget.middle_name_le.setText(item.patronymic)
         event = self.create_person_widget.exec()
         if event:
             data = self.create_person_widget.get_data()
@@ -104,7 +104,7 @@ class OfficialPersonChoice(QDialog, QWidget, Ui_official_person_choice):
             item.rank = data['rank']
             item.name = data['name']
             item.surname = data['surname']
-            item.middle_name = data['middle_name']
+            item.patronymic = data['middle_name']
             item.update()
             self.form_table()
         self.activate_button()
