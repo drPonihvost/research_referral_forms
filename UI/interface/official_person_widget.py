@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidge
 
 from UI.interface.base_widgets import BaseWidget, OfficialPersonTable
 from UI.interface.official_person_form import OfficialPersonForm
-from data_base.models import OfficialPerson, Initiator, Executor, Addressee
+from data_base.models import Initiator, Executor, Addressee
 
 
 class OfficialPersonWidget(BaseWidget):
@@ -17,7 +17,7 @@ class OfficialPersonWidget(BaseWidget):
         self.person = person
         self.base_class = _TABLE[self.person]
         self.table = OfficialPersonTable(self.person)
-        self.center_and_set_the_size(0.5, 0.3)
+        # self.center_and_set_the_size(0.5, 0.3)
 
         # layout
         self.main_layout = QHBoxLayout()
@@ -55,7 +55,7 @@ class OfficialPersonWidget(BaseWidget):
         official_persons = self.base_class.get_all()
         if not official_persons:
             return
-        for official_person in official_persons:
+        for official_person in reversed(official_persons):
             row = self.table.rowCount()
             self.table.insertRow(row)
             self.table.setItem(row, 0, QTableWidgetItem(official_person.create_name_reduction()))

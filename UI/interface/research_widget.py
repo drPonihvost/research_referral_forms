@@ -1,7 +1,9 @@
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
 
 from UI.interface.base_widgets import BaseWidget, ResearchTable
-from data_base.models import Research, PersonToCheck, OfficialPerson
+from UI.interface.form_blank_wizard import FormBlankWizard
+from UI.interface.research_wizard import ResearchWizard
+from data_base.models import Research, PersonToCheck
 
 
 class ResearchWidget(BaseWidget):
@@ -32,6 +34,12 @@ class ResearchWidget(BaseWidget):
         self.main_layout.addLayout(self.table_layout)
         self.setLayout(self.main_layout)
 
+        # signals
+        self.add_research_pb.clicked.connect(self.create_research)
+        self.change_research_pb.clicked.connect(self.edit_research)
+        self.delete_research_pb.clicked.connect(self.delete_research)
+        self.form_research_pb.clicked.connect(self.form_blank)
+
         # actions
         self.center_and_set_the_size(0.95, 0.8)
         self.table.resize_to_content()
@@ -42,11 +50,11 @@ class ResearchWidget(BaseWidget):
         self.table.setRowCount(0)
         if not researches:
             return
-        for research in researches:
+        for research in reversed(researches):
             persons_to_check_count = PersonToCheck.get_count_by_research(research.id)
-            initiator = OfficialPerson.get_name_by_research(research.id, 'initiator')
-            addressee = OfficialPerson.get_name_by_research(research.id, 'addressee')
-            executor = OfficialPerson.get_name_by_research(research.id, 'executor')
+            initiator = research.initiator.create_name_reduction() if research.initiator else ''
+            executor = research.executor.create_name_reduction() if research.initiator else ''
+            addressee = research.addressee.create_name_reduction() if research.initiator else ''
             row = self.table.rowCount()
             self.table.insertRow(row)
             self.table.setItem(row, 0, QTableWidgetItem(str(research.id)))
@@ -63,6 +71,43 @@ class ResearchWidget(BaseWidget):
             self.table.setItem(row, 11, QTableWidgetItem(addressee))
             self.table.setItem(row, 12, QTableWidgetItem(executor))
         self.table.resize_to_content()
+
+    def create_research(self):
+        wizard = ResearchWizard()
+        wizard.exec()
+        self.fill_the_table(Research.get_all())
+
+    def edit_research(self):
+        research_id = self.table.item(self.table.currentRow(), 0).text()
+        wizard = ResearchWizard(research_id)
+        wizard.exec()
+        self.fill_the_table(Research.get_all())
+
+    def delete_research(self):
+        research_id = self.table.item(self.table.currentRow(), 0).text()
+        persons_to_check = PersonToCheck.get_by_research(research_id)
+        PersonToCheck.bulk_delete(persons_to_check)
+        Research.delete(Research.get_by_id(research_id))
+        self.fill_the_table(Research.get_all())
+
+    def init_dispatch(self):
+        research_id = self.table.item(self.table.currentRow(), 0).text()
+        wizard = FormBlankWizard(research_id)
+        event = wizard.exec()
+        if event:
+            research = Research.get_by_id(research_id)
+            data = wizard.get_off_persons_id()
+            research.date_of_dispatch = data['date_of_dispatch']
+            research.initiator_id = data['initiator_id']
+            research.addressee_id = data['addressee_id']
+            research.executor_id = data['executor_id']
+            research.update()
+
+    def form_blank(self):
+        self.init_dispatch()
+
+
+        self.fill_the_table(Research.get_all())
 
 
 if __name__ == "__main__":

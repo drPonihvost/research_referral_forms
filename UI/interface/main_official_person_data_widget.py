@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget, QDialog, QTableWidgetItem, QAbstractItemV
 from UI.ui_py.create_official_person_dialog import Ui_create_official_person_dialog
 from UI.ui_py.official_person_choice_dialog import Ui_official_person_choice
 from UI.ui_py.official_person_data_widget import Ui_official_person_data
-from data_base.models import Addressees, Executor, Initiator, Research
+from data_base.models import Addressee, Executor, Initiator, Research
 
 
 class CreateOfficialPersonDialog(QDialog, Ui_create_official_person_dialog):
@@ -11,7 +11,7 @@ class CreateOfficialPersonDialog(QDialog, Ui_create_official_person_dialog):
         super().__init__()
         self.role = role
         self.table = dict(
-            addressees=Addressees,
+            addressees=Addressee,
             executor=Executor,
             initiator=Initiator
         )
@@ -37,7 +37,7 @@ class OfficialPersonChoice(QDialog, QWidget, Ui_official_person_choice):
         super().__init__()
         self.role = role
         self.table = dict(
-            addressees=Addressees,
+            addressees=Addressee,
             executor=Executor,
             initiator=Initiator
         )
@@ -129,7 +129,7 @@ class OfficialPersonData(QWidget, Ui_official_person_data):
         super().__init__()
         self.role = role
         self.table = dict(
-            addressees=Addressees,
+            addressees=Addressee,
             executor=Executor,
             initiator=Initiator
         )

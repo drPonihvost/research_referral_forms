@@ -73,7 +73,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
             self.research_person_table_tw.setItem(row_position, 3, QTableWidgetItem(i.person.name))
             self.research_person_table_tw.setItem(row_position, 4, QTableWidgetItem(i.person.patronymic))
             self.research_person_table_tw.setItem(row_position, 5, QTableWidgetItem(i.person.convert_date()))
-            self.research_person_table_tw.setItem(row_position, 6, QTableWidgetItem(i.person.birthplace))
+            self.research_person_table_tw.setItem(row_position, 6, QTableWidgetItem(i.person.birthplace_le))
             self.research_person_table_tw.setItem(row_position, 7, QTableWidgetItem(i.event.number_to_string()))
             self.research_person_table_tw.setItem(row_position, 8, QTableWidgetItem(i.event.convert_date()))
             self.research_person_table_tw.setItem(row_position, 9, QTableWidgetItem(i.event.plot))
@@ -126,7 +126,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
             if not record.person.male:
                 self.person_data_form.female_rb.toggle()
             self.person_data_form.date_of_birth_de.setDate(record.person.birthday)
-            self.person_data_form.birthplace_le.setText(record.person.birthplace)
+            self.person_data_form.birthplace_le.setText(record.person.birthplace_le)
         self.toggle_radio_button(record.event.case_type)
         self.person_data_form.set_event_type()
         self.person_data_form.event_description_form.number_cb.setText(record.event.number)
@@ -134,7 +134,7 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         self.person_data_form.plot_te.setText(record.event.plot)
         if record.event.case_type != 'requisition':
             self.person_data_form.event_description_form.item_de.setCurrentText(record.event.article)
-            self.person_data_form.event_description_form.number_cb_2.setText(record.event.address)
+            self.person_data_form.event_description_form.number_cb_2.setText(record.event.address_le)
 
     def load_research(self):
         addressees_id = self.official_person_data_addresses.official_person_id
@@ -181,17 +181,17 @@ class ResearchWindow(QMainWindow, Ui_research_main_window):
         initiator_id = self.official_person_data_initiator.official_person_id
         record.addressees_id = addressees_id
         record.executor_id = executor_id
-        record.initiator_id = initiator_id
+        record.off_person_id = initiator_id
         record.person.surname = self.data['surname']
         record.person.name = self.data['name']
         record.person.patronymic = self.data['middle_name']
         record.person.birthday = self.data['date_of_birth']
-        record.person.birthplace = self.data['birthplace']
+        record.person.birthplace_le = self.data['birthplace']
         record.person.male = self.data['male']
         record.event.case_type = self.data['case_category']
         record.event.number = self.data['number']
         record.event.formation_date = self.data['formation_date']
-        record.event.address = self.data['address'] if self.data['case_category'] != 'requisition' else ''
+        record.event.address_le = self.data['address'] if self.data['case_category'] != 'requisition' else ''
         record.event.article = self.data['item'] if self.data['case_category'] != 'requisition' else ''
         record.event.plot = self.data['plot']
         return record

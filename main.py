@@ -2,12 +2,11 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
+from UI.interface.research_widget import ResearchWidget
 from data_base.models import init_db
 
-from UI.interface.main_window import ResearchWindow
 
-
-class MainWindow(ResearchWindow):
+class MainWindow(ResearchWidget):
     def __init__(self):
         super().__init__()
 

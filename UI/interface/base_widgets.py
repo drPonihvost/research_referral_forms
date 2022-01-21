@@ -3,6 +3,14 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QD
     QPlainTextEdit, QTableWidget, \
     QAbstractItemView
 
+CASE = ('105. Убийство',
+        '106. Убийство матерью новорожденного ребенка',
+        '107. Убийство, совершенное в состоянии аффекта',
+        '108. Убийство, совершенное при превышении пределов необходимой обороны либо при превышении мер, необходимых для задержания лица, совершившего преступление',
+        '109. Причинение смерти по неосторожности',
+        'Статья отсутствует'
+    )
+
 
 class BaseWidget(QWidget):
     def __init__(self):
@@ -86,17 +94,29 @@ class ResearchTable(QTableWidget, BaseWidget):
 class PersonTable(QTableWidget, BaseWidget):
     def __init__(self):
         super().__init__()
-        _HEADER_ITEMS = ('Фамилия', 'Имя', 'Отчество', 'Дата рождения', 'Место рождения', 'Пол', 'Основание проверки',
-                         'Направлен на проверку')
+        _HEADER_ITEMS = ('Фамилия', 'Имя', 'Отчество', 'Дата рождения', 'Пол', 'Место рождения', 'Место пребывания',
+                         'Идентификатор', 'Основание проверки', 'Направлен на проверку')
 
         self.setColumnCount(len(_HEADER_ITEMS))
         self.setHorizontalHeaderLabels(_HEADER_ITEMS)
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.setColumnHidden(7, True)
 
     def resize_to_content(self):
         self.resizeColumnsToContents()
         self.resizeRowsToContents()
+
+
+class PersonTableForWizard(PersonTable):
+    def __init__(self):
+        super().__init__()
+        _HEADER_ITEMS = ('Фамилия', 'Имя', 'Отчество', 'Дата рождения', 'Пол', 'Место рождения', 'Место пребывания',
+                         'Идентификатор')
+
+        self.setColumnCount(len(_HEADER_ITEMS))
+        self.setHorizontalHeaderLabels(_HEADER_ITEMS)
 
 
 class OfficialPersonTable(QTableWidget, BaseWidget):
@@ -117,4 +137,25 @@ class OfficialPersonTable(QTableWidget, BaseWidget):
     def resize_to_content(self):
         self.resizeColumnsToContents()
         self.setColumnWidth(4, 270)
+        self.resizeRowsToContents()
+
+
+class EventTable(QTableWidget, BaseWidget):
+    def __init__(self):
+        super().__init__()
+        _HEADER_ITEMS = ('Номер', 'Дата регистрации', 'Происшествие', 'Дата происшествия', 'Адрес происшествия',
+                         'Статья', 'Идентификатор')
+
+        self.setColumnCount(len(_HEADER_ITEMS))
+        self.setHorizontalHeaderLabels(_HEADER_ITEMS)
+        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.setColumnHidden(6, True)
+
+    def resize_to_content(self):
+        self.resizeColumnsToContents()
+        self.resizeRowsToContents()
+        self.setColumnWidth(2, 300)
+        self.setColumnWidth(4, 300)
         self.resizeRowsToContents()
