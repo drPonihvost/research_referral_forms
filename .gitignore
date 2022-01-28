@@ -1,7 +1,8 @@
 venv
-qr_image/*
-research_directions/*
-pdf_template/*.pdf
+dist
+build
+main.spec
+research_blanks
 test_db.db
 .idea
 *.pyc
