@@ -2,12 +2,11 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
-from data_base.models import init_db
+from main_window import MainWindow
+from models import init_db
 
-from UI.interface.main_window import ResearchWindow
 
-
-class MainWindow(ResearchWindow):
+class Window(MainWindow):
     def __init__(self):
         super().__init__()
 
@@ -15,6 +14,6 @@ class MainWindow(ResearchWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     init_db()
-    w = MainWindow()
+    w = Window()
     w.show()
     sys.exit(app.exec())

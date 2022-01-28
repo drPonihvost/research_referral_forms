@@ -1,6 +1,8 @@
 venv
-qr_image/*
-research_directions/*
+dist
+build
+main.spec
+research_blanks
 test_db.db
 .idea
 *.pyc
