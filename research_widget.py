@@ -51,12 +51,20 @@ class ResearchWidget(BaseWidget):
         self.change_research_pb.clicked.connect(self.edit_research)
         self.delete_research_pb.clicked.connect(self.delete_research)
         self.form_research_pb.clicked.connect(self.form_blank)
+        self.table.itemSelectionChanged.connect(self.activate_button)
 
         # actions
         self.table.resize_to_content()
         self.fill_the_table(Research.get_all())
+        self.activate_button()
 
     # slots
+    def activate_button(self):
+        enabled = True if self.table.selectionModel().selectedRows(0) else False
+        self.change_research_pb.setEnabled(enabled)
+        self.form_research_pb.setEnabled(enabled)
+        self.delete_research_pb.setEnabled(enabled)
+
     def fill_the_table(self, researches: list[Research]):
         self.table.setRowCount(0)
         if not researches:
@@ -87,12 +95,14 @@ class ResearchWidget(BaseWidget):
         wizard = ResearchWizard()
         wizard.exec()
         self.fill_the_table(Research.get_all())
+        self.activate_button()
 
     def edit_research(self):
         research_id = self.table.item(self.table.currentRow(), 0).text()
         wizard = ResearchWizard(research_id)
         wizard.exec()
         self.fill_the_table(Research.get_all())
+        self.activate_button()
 
     def delete_research(self):
         research_id = self.table.item(self.table.currentRow(), 0).text()
@@ -100,6 +110,7 @@ class ResearchWidget(BaseWidget):
         PersonToCheck.bulk_delete(persons_to_check)
         Research.delete(Research.get_by_id(research_id))
         self.fill_the_table(Research.get_all())
+        self.activate_button()
 
     def init_dispatch(self):
         research = None
@@ -124,7 +135,6 @@ class ResearchWidget(BaseWidget):
         return main_res_dir
 
     def create_research_dir(self, research):
-        # if not research.file_name:
         file_name = self.create_file_name(research)
         research_dir = os.path.dirname(__file__) + '\\research_blanks' + f'\\{file_name}'
         os.mkdir(research_dir)
@@ -205,23 +215,17 @@ class ResearchWidget(BaseWidget):
             init_name=research.initiator.create_name_reduction()
         )
 
-    def fill_html_template(self, research: Research, template: str, persons_to_check: list[PersonToCheck]) -> str:
+    def fill_html_template(self, research: Research, template: str, persons_to_check: list[PersonToCheck]):
         data = self.get_data_by_pdf(research, persons_to_check)
         template = Template(template)
         rendered_page = template.render(**data)
         with open(research.dir_path + '\\' + research.file_name + '.html', "w", encoding="UTF-8") as fh:
             fh.write(rendered_page)
-        # return rendered_page
 
     def create_pdf(self, research: Research, persons_to_check: list[PersonToCheck]) -> None:
         self.fill_html_template(research, HTML_PERSON, persons_to_check)
-        # pdfkit.from_string(html, research.dir_path + f'\\{research.file_name}.pdf')
-
-
-
         page = QWebEnginePage()
         page.load(QtCore.QUrl.fromLocalFile(research.dir_path + f'\\{research.file_name}.html'))
-        # page.setHtml(html)
 
         def handle_load_finished(status):
             if status:
@@ -232,7 +236,6 @@ class ResearchWidget(BaseWidget):
                 param.setTopMargin(20.0)
                 param.setBottomMargin(15.0)
                 page.printToPdf(research.dir_path + f'\\{research.file_name}.pdf', param)
-
         page.loadFinished.connect(handle_load_finished)
 
     def form_blank(self):
@@ -244,3 +247,4 @@ class ResearchWidget(BaseWidget):
             self.create_person_qr(research, PersonToCheck.get_by_research(research.id))
             self.create_pdf(research, PersonToCheck.get_by_research(research.id))
         self.fill_the_table(Research.get_all())
+        self.activate_button()
