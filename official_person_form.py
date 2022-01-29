@@ -69,14 +69,25 @@ class OfficialPersonForm(BaseForm):
 
         # signal
         self.add_division_button.clicked.connect(self.add_division)
+        self.add_division_button.clicked.connect(self.activate_button)
         self.edit_division_button.clicked.connect(self.edit_division)
+        self.edit_division_button.clicked.connect(self.activate_button)
         self.delete_division_button.clicked.connect(self.delete_division)
+        self.delete_division_button.clicked.connect(self.activate_button)
+        self.division_cb.activated.connect(self.activate_button)
 
         # action
         self.fill_combo_box()
         self.division = self.get_division()
+        self.activate_button()
 
     # slots
+    def activate_button(self):
+        enable = True if self.division_cb.currentText() else False
+        self.edit_division_button.setEnabled(enable)
+        self.delete_division_button.setEnabled(enable)
+        self.add_button.setEnabled(enable)
+
     def fill_combo_box(self):
         self.division_cb.clear()
         divisions = Division.get_by_person(self.person)

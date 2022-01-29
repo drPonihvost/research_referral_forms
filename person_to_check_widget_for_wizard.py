@@ -34,14 +34,24 @@ class PersonToCheckWidgetForWizard(BaseWidget):
 
         # signals
         self.add_button.clicked.connect(self.add_person)
+        self.add_button.clicked.connect(self.activate_button)
         self.edit_person_pb.clicked.connect(self.edit_person)
+        self.edit_person_pb.clicked.connect(self.activate_button)
         self.delete_person_pb.clicked.connect(self.delete_person)
+        self.delete_person_pb.clicked.connect(self.activate_button)
+        self.table.itemSelectionChanged.connect(self.activate_button)
 
         # actions
         self.table.resize_to_content()
         self.fill_the_table(PersonToCheck.get_by_research(self.research.id))
+        self.activate_button()
 
     # slots
+    def activate_button(self):
+        enabled = True if self.table.selectionModel().selectedRows(0) else False
+        self.edit_person_pb.setEnabled(enabled)
+        self.delete_person_pb.setEnabled(enabled)
+
     def fill_the_table(self, persons: list[PersonToCheck]):
         self.table.setRowCount(0)
         if not persons:

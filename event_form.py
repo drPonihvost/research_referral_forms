@@ -15,6 +15,8 @@ class EventForm(BaseForm):
 
         self.case = None
 
+        self.add_button.setEnabled(False)
+
         # layout
         self.radio_layout = QGridLayout()
         self.case_button_group = QButtonGroup()
@@ -56,8 +58,12 @@ class EventForm(BaseForm):
 
         # signal
         self.case_button_group.buttonClicked.connect(self.select_radio)
+        self.case_button_group.buttonClicked.connect(self.activate_button)
 
     # slots
+    def activate_button(self):
+        self.add_button.setEnabled(True)
+
     @staticmethod
     def convert_date(date: str):
         f = '%d.%m.%Y'
@@ -73,7 +79,6 @@ class EventForm(BaseForm):
         self.plot_te.setPlainText(event.plot)
         self.incident_date_le.setText(event.convert_incident_date())
         self.address_le.setText(event.address)
-
 
     def clear_form(self):
         self.number_le.clear()

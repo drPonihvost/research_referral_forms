@@ -19,14 +19,14 @@ class EventWidget(BaseWidget):
         self.table = EventTable()
 
         # buttons
-        self.add_button = QPushButton('Добавить')
-        self.edit_person_pb = QPushButton('Изменить')
-        self.delete_person_pb = QPushButton('Удалить')
+        self.add_event_pb = QPushButton('Добавить')
+        self.edit_event_pb = QPushButton('Изменить')
+        self.delete_event_pb = QPushButton('Удалить')
 
         # configuration
-        self.button_layout.addWidget(self.add_button)
-        self.button_layout.addWidget(self.edit_person_pb)
-        self.button_layout.addWidget(self.delete_person_pb)
+        self.button_layout.addWidget(self.add_event_pb)
+        self.button_layout.addWidget(self.edit_event_pb)
+        self.button_layout.addWidget(self.delete_event_pb)
         self.button_layout.addStretch(0)
         self.table_layout.addWidget(self.table)
         self.main_layout.addLayout(self.button_layout)
@@ -34,15 +34,25 @@ class EventWidget(BaseWidget):
         self.setLayout(self.main_layout)
 
         # signals
-        self.add_button.clicked.connect(self.add_event)
-        self.edit_person_pb.clicked.connect(self.edit_event)
-        self.delete_person_pb.clicked.connect(self.delete_event)
+        self.add_event_pb.clicked.connect(self.add_event)
+        self.add_event_pb.clicked.connect(self.activate_button)
+        self.edit_event_pb.clicked.connect(self.edit_event)
+        self.edit_event_pb.clicked.connect(self.activate_button)
+        self.delete_event_pb.clicked.connect(self.delete_event)
+        self.delete_event_pb.clicked.connect(self.activate_button)
+        self.table.itemSelectionChanged.connect(self.activate_button)
 
         # actions
         self.table.resize_to_content()
         self.fill_the_table(Event.get_all())
+        self.activate_button()
 
     # slots
+    def activate_button(self):
+        enabled = True if self.table.selectionModel().selectedRows(0) else False
+        self.edit_event_pb.setEnabled(enabled)
+        self.delete_event_pb.setEnabled(enabled)
+
     def fill_the_table(self, events: list[Event]):
         self.table.setRowCount(0)
         if not events:
