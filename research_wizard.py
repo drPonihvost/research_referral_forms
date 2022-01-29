@@ -25,6 +25,7 @@ class ResearchWizard(QWizard, BaseWidget):
         self.setButtonText(QWizard.CancelButton, 'Отмена')
         self.setButtonText(QWizard.FinishButton, 'Готово')
 
+
         self.center_and_set_the_size(0.6, 0.5)
 
 
