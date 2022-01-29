@@ -80,6 +80,10 @@ class Research(BaseModel):
     def get_last_record(cls):
         return session.query(cls).order_by(cls.id).desc().first()
 
+    @classmethod
+    def get_by_event(cls, event_id):
+        return session.query(cls).filter_by(event_id=event_id).first()
+
     def convert_recording_date(self):
         return self.date_of_recording.strftime('%d.%m.%Y')
 
@@ -197,7 +201,6 @@ class Event(BaseModel):
         if not self.formation_date:
             return ''
         return self.formation_date.strftime('%d.%m.%Y')
-
 
     def convert_incident_date(self):
         if not self.incident_date:
