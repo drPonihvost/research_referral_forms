@@ -1,6 +1,8 @@
+from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QMainWindow, QTabWidget
 
 from base_widgets import BaseWidget
+from models import PersonToCheck
 from person_to_check_widget import PersonToCheckWidget
 from research_widget import ResearchWidget
 
@@ -20,4 +22,14 @@ class MainWindow(QMainWindow, BaseWidget):
 
         # layout
         self.setCentralWidget(self.tab_widget)
+
+        # signals
+        self.tab_widget.tabBarClicked.connect(self.person_tab_clicked)
+
+    @Slot()
+    def person_tab_clicked(self, index):
+        if self.sender().tabText(index) == 'Лица на проверку':
+            self.person_widget.fill_the_table(PersonToCheck.get_all())
+
+
 
