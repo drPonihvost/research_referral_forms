@@ -2,7 +2,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QMainWindow, QTabWidget
 
 from base_widgets import BaseWidget
-from models import PersonToCheck
+from models import PersonToCheck, Research
 from person_to_check_widget import PersonToCheckWidget
 from research_widget import ResearchWidget
 
@@ -30,6 +30,5 @@ class MainWindow(QMainWindow, BaseWidget):
     def person_tab_clicked(self, index):
         if self.sender().tabText(index) == 'Лица на проверку':
             self.person_widget.fill_the_table(PersonToCheck.get_all())
-
-
-
+        elif self.sender().tabText(index) == 'Направления на исследование':
+            self.research_widget.fill_the_table(Research.get_all())
