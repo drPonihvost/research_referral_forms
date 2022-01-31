@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Boolean, UniqueConstraint
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Boolean, UniqueConstraint, or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -80,6 +80,16 @@ class Research(BaseModel):
     def get_last_record(cls):
         return session.query(cls).order_by(cls.id).desc().first()
 
+    @classmethod
+    def get_by_event(cls, event_id):
+        return session.query(cls).filter_by(event_id=event_id).first()
+
+    @classmethod
+    def get_by_off_person(cls, off_person_id):
+        return session.query(cls).filter(or_(cls.initiator_id == off_person_id,
+                                             cls.addressee_id == off_person_id,
+                                             cls.executor_id == off_person_id)).first()
+
     def convert_recording_date(self):
         return self.date_of_recording.strftime('%d.%m.%Y')
 
@@ -88,7 +98,7 @@ class Research(BaseModel):
 
     def convert_dispatch_date(self):
         if self.date_of_dispatch:
-            return self.date_of_recording.strftime('%d.%m.%Y')
+            return self.date_of_dispatch.strftime('%d.%m.%Y')
 
 
 class Person(BaseModel):
@@ -168,6 +178,10 @@ class Initiator(OfficialPerson):
     division_id = Column(Integer, ForeignKey('division.id'))
     division = relationship('Division', backref='initiator')
 
+    @classmethod
+    def get_by_division(cls, division_id):
+        return session.query(cls).filter_by(division_id=division_id).first()
+
 
 class Executor(OfficialPerson):
     __tablename__ = 'executor'
@@ -175,12 +189,20 @@ class Executor(OfficialPerson):
     division_id = Column(Integer, ForeignKey('division.id'))
     division = relationship('Division', backref='executor')
 
+    @classmethod
+    def get_by_division(cls, division_id):
+        return session.query(cls).filter_by(division_id=division_id).first()
+
 
 class Addressee(OfficialPerson):
     __tablename__ = 'addressee'
 
     division_id = Column(Integer, ForeignKey('division.id'))
     division = relationship('Division', backref='addressee')
+
+    @classmethod
+    def get_by_division(cls, division_id):
+        return session.query(cls).filter_by(division_id=division_id).first()
 
 
 class Event(BaseModel):
@@ -197,7 +219,6 @@ class Event(BaseModel):
         if not self.formation_date:
             return ''
         return self.formation_date.strftime('%d.%m.%Y')
-
 
     def convert_incident_date(self):
         if not self.incident_date:

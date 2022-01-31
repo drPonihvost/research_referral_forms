@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidge
 from jinja2 import Template
 
 from base_widgets import BaseWidget, ResearchTable
+from error_widget import ErrorWidget
 from form_blank_wizard import FormBlankWizard
 from research_wizard import ResearchWizard
 from models import Research, PersonToCheck
@@ -100,7 +101,14 @@ class ResearchWidget(BaseWidget):
     def edit_research(self):
         research_id = self.table.item(self.table.currentRow(), 0).text()
         wizard = ResearchWizard(research_id)
-        wizard.exec()
+        event = wizard.exec()
+        if event:
+            research = Research.get_by_id(research_id)
+            research.initiator_id = None
+            research.addressee_id = None
+            research.executor_id = None
+            research.date_of_dispatch = None
+            research.update()
         self.fill_the_table(Research.get_all())
         self.activate_button()
 
@@ -239,12 +247,21 @@ class ResearchWidget(BaseWidget):
         page.loadFinished.connect(handle_load_finished)
 
     def form_blank(self):
-        self.create_main_res_dir()
-        research = self.init_dispatch()
-        if research:
-            self.set_research_dir(research)
-            self.create_event_qr(research)
-            self.create_person_qr(research, PersonToCheck.get_by_research(research.id))
-            self.create_pdf(research, PersonToCheck.get_by_research(research.id))
-        self.fill_the_table(Research.get_all())
+        person_to_check = PersonToCheck.get_count_by_research(self.table.item(self.table.currentRow(), 0).text())
+        if not person_to_check:
+            message = ErrorWidget(
+                text='''Нельзя сформировать направление
+                без лиц''',
+                title='Ошибка формирования'
+            )
+            message.exec()
+        else:
+            self.create_main_res_dir()
+            research = self.init_dispatch()
+            if research:
+                self.set_research_dir(research)
+                self.create_event_qr(research)
+                self.create_person_qr(research, PersonToCheck.get_by_research(research.id))
+                self.create_pdf(research, PersonToCheck.get_by_research(research.id))
+            self.fill_the_table(Research.get_all())
         self.activate_button()

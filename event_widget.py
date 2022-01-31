@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidge
 from base_widgets import BaseWidget, EventTable
 from error_widget import ErrorWidget
 from event_form import EventForm
-from models import Event
+from models import Event, Research
 
 
 class EventWidget(BaseWidget):
@@ -111,6 +111,14 @@ class EventWidget(BaseWidget):
 
     def delete_event(self):
         event_id = self.table.item(self.table.currentRow(), 6).text()
+        research = Research.get_by_event(event_id)
+        if research:
+            message = ErrorWidget(
+                text='Это событие связано с направлением на исследование, удаление невозможно.',
+                title='Ошибка удаления'
+            )
+            message.exec()
+            return
         event = Event.get_by_id(event_id)
         event.delete()
         self.fill_the_table(Event.get_all())
