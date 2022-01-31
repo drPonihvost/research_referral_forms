@@ -19,3 +19,9 @@ class DivisionForm(BaseForm):
         self.main_layout.addLayout(self.form_layout)
         self.main_layout.addLayout(self.button_layout)
         self.setLayout(self.main_layout)
+
+    def get_data(self):
+        return dict(
+            division_full_name=self.division_full_name.toPlainText(),
+            division_red_name=self.division_red_name.toPlainText()
+        )

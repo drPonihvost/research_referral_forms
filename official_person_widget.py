@@ -1,8 +1,9 @@
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
 
 from base_widgets import BaseWidget, OfficialPersonTable
+from error_widget import ErrorWidget
 from official_person_form import OfficialPersonForm
-from models import Initiator, Executor, Addressee
+from models import Initiator, Executor, Addressee, Research
 
 
 class OfficialPersonWidget(BaseWidget):
@@ -101,6 +102,14 @@ class OfficialPersonWidget(BaseWidget):
 
     def delete_official_person(self):
         official_person = self.base_class.get_by_id(self.table.selectedItems()[5].text())
-        official_person.delete()
+        if not Research.get_by_off_person(official_person.id):
+            official_person.delete()
+        else:
+            message = ErrorWidget(
+                text='''Должностное лицо указано в существующем направлении,
+                удаление невозможно''',
+                title='Ошибка удаления'
+            )
+            message.exec()
         self.fill_the_table()
         self.activate_button()

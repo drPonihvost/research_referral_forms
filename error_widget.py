@@ -9,5 +9,3 @@ class ErrorWidget(QMessageBox, BaseWidget):
         self.setWindowTitle(title)
         self.setText(text)
         self.center_and_set_the_size(0.13, 0.17)
-
-

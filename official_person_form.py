@@ -3,12 +3,18 @@ from PySide6.QtWidgets import QHBoxLayout, QComboBox, QPushButton, QLabel
 from base_widgets import BaseForm, LineEditWithTip
 from division_form import DivisionForm
 from error_widget import ErrorWidget
-from models import Division
+from models import Division, Initiator, Addressee, Executor
 
 
 class OfficialPersonForm(BaseForm):
     def __init__(self, person: str = 'initiator'):
         super().__init__()
+
+        self.persons = dict(
+            initiator=Initiator,
+            addressee=Addressee,
+            executor=Executor
+        )
 
         self.person = person
 
@@ -109,7 +115,7 @@ class OfficialPersonForm(BaseForm):
             self.division_cb.currentText(),
             self.person
         )
-        return division if division else None
+        return division
 
     def get_data(self):
         division = self.get_division()
@@ -129,18 +135,20 @@ class OfficialPersonForm(BaseForm):
             post=self.post_le.text()
         )
 
+    @staticmethod
+    def check_for_uniqueness(red_name, person):
+        return Division.get_by_red_name(red_name, person)
+
     def add_division(self):
         division_form_dialog = DivisionForm()
         event = division_form_dialog.exec()
         if event:
-            division = Division.get_by_red_name(
-                division_form_dialog.division_red_name.toPlainText(),
-                self.person
-            )
+            data = division_form_dialog.get_data()
+            division = self.check_for_uniqueness(data['division_red_name'], self.person)
             if not division:
                 Division(
-                    division_full_name=division_form_dialog.division_full_name.toPlainText(),
-                    division_red_name=division_form_dialog.division_red_name.toPlainText(),
+                    division_full_name=data['division_full_name'],
+                    division_red_name=data['division_red_name'],
                     person=self.person
                 ).save()
             else:
@@ -158,16 +166,29 @@ class OfficialPersonForm(BaseForm):
         division_form_dialog.division_red_name.setPlainText(division.division_red_name)
         event = division_form_dialog.exec()
         if event:
-            division.division_full_name = division_form_dialog.division_full_name.toPlainText()
-            division.division_red_name = division_form_dialog.division_red_name.toPlainText()
-            division.save()
+            data = division_form_dialog.get_data()
+            new_division = self.check_for_uniqueness(data['division_red_name'], self.person)
+            if not new_division:
+                division.division_full_name = data['division_full_name']
+                division.division_red_name = data['division_red_name']
+                division.update()
+            else:
+                message = ErrorWidget(
+                    text='Такая запись уже существует',
+                    title='Ошибка редактирования'
+                )
+                message.exec()
         self.fill_combo_box()
-        return division
 
     def delete_division(self):
         division = Division.get_by_red_name(self.division_cb.currentText(), self.person)
-        division.delete()
+        person = self.persons[self.person].get_by_division(division.id)
+        if not person:
+            division.delete()
+        else:
+            message = ErrorWidget(
+                text='''Подразделение не может быть удалено''',
+                title='Ошибка удаления'
+            )
+            message.exec()
         self.fill_combo_box()
-
-    def get_data_in_form(self):
-        pass
