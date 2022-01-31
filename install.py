@@ -6,6 +6,6 @@ PyInstaller.__main__.run([
     'main.py',
     '--onedir',
     '--console',
-    '--add-data=test_db.db;.',
+    '--add-data=db_SQLite3.db;.',
     f'--add-data={path};.'
 ])

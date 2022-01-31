@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime, Foreign
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
-DATABASE_NAME = 'test_db.db'
+DATABASE_NAME = 'db_SQLite3.db'
 engine = create_engine(f'sqlite:///{os.path.dirname(__file__)}\\{DATABASE_NAME}')
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -66,6 +66,7 @@ class Research(BaseModel):
     date_of_change = Column(DateTime, default=datetime.utcnow)
     date_of_dispatch = Column(DateTime)
     event_id = Column(Integer, ForeignKey('event.id'), nullable=False)
+    related_search = Column(Boolean, default=False)
     initiator_id = Column(Integer, ForeignKey('initiator.id'))
     executor_id = Column(Integer, ForeignKey('executor.id'))
     addressee_id = Column(Integer, ForeignKey('addressee.id'))
@@ -113,6 +114,7 @@ class Person(BaseModel):
 
 class PersonToCheck(Person):
     __tablename__ = 'person_to_check'
+    related = Column(String)
     birthday = Column(DateTime)
     birthplace = Column(String)
     male = Column(Boolean, nullable=False)
