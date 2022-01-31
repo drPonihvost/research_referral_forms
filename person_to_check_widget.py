@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
 
 from base_widgets import PersonTable, BaseWidget
-from person_to_check_form import PersonToCheckForm
 from models import PersonToCheck
+from research_wizard import ResearchWizard
 
 
 class PersonToCheckWidget(BaseWidget):
@@ -17,12 +17,10 @@ class PersonToCheckWidget(BaseWidget):
         self.table = PersonTable()
 
         # buttons
-        self.edit_person_pb = QPushButton('Изменить')
-        self.delete_person_pb = QPushButton('Удалить')
+        self.go_over_research_pb = QPushButton('Перейти к направлению')
 
         # configuration
-        self.button_layout.addWidget(self.edit_person_pb)
-        self.button_layout.addWidget(self.delete_person_pb)
+        self.button_layout.addWidget(self.go_over_research_pb)
         self.button_layout.addStretch(0)
         self.table_layout.addWidget(self.table)
         self.main_layout.addLayout(self.button_layout)
@@ -30,10 +28,8 @@ class PersonToCheckWidget(BaseWidget):
         self.setLayout(self.main_layout)
 
         # signals
-        self.edit_person_pb.clicked.connect(self.edit_person)
-        self.edit_person_pb.clicked.connect(self.activate_button)
-        self.delete_person_pb.clicked.connect(self.delete_person)
-        self.delete_person_pb.clicked.connect(self.activate_button)
+        self.go_over_research_pb.clicked.connect(self.go_over_research)
+        self.go_over_research_pb.clicked.connect(self.activate_button)
         self.table.itemSelectionChanged.connect(self.activate_button)
 
         # actions
@@ -43,8 +39,7 @@ class PersonToCheckWidget(BaseWidget):
 
     def activate_button(self):
         enabled = True if self.table.selectionModel().selectedRows(0) else False
-        self.edit_person_pb.setEnabled(enabled)
-        self.delete_person_pb.setEnabled(enabled)
+        self.go_over_research_pb.setEnabled(enabled)
 
     def fill_the_table(self, persons: list[PersonToCheck]):
         self.table.setRowCount(0)
@@ -65,26 +60,17 @@ class PersonToCheckWidget(BaseWidget):
             self.table.setItem(row, 9, QTableWidgetItem(person.research.convert_dispatch_date()))
         self.table.resize_to_content()
 
-    def edit_person(self):
-        person_id = self.table.item(self.table.currentRow(), 7).text()
-        person = PersonToCheck.get_by_id(person_id)
-        person_to_check_form = PersonToCheckForm(person.research)
-        person_to_check_form.fill_the_form(person)
-        event = person_to_check_form.exec()
+    def go_over_research(self):
+        person = PersonToCheck.get_by_id(self.table.item(self.table.currentRow(), 7).text())
+        research = person.research
+        wizard = ResearchWizard(research.id)
+        wizard.next()
+        wizard.next()
+        event = wizard.exec()
         if event:
-            data = person_to_check_form.get_data()
-            person.surname = data['surname']
-            person.name = data['name']
-            person.patronymic = data['patronymic']
-            person.male = data['male']
-            person.birthday = data['birthday']
-            person.birthplace = data['birthplace']
-            person.reg_place = data['reg_place']
-            person.update()
-        self.fill_the_table(PersonToCheck.get_all())
-
-    def delete_person(self):
-        person_id = self.table.item(self.table.currentRow(), 7).text()
-        person = PersonToCheck.get_by_id(person_id)
-        person.delete()
+            research.initiator_id = None
+            research.addressee_id = None
+            research.executor_id = None
+            research.date_of_dispatch = None
+            research.update()
         self.fill_the_table(PersonToCheck.get_all())
