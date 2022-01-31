@@ -31,11 +31,20 @@ class PersonToCheckWidget(BaseWidget):
 
         # signals
         self.edit_person_pb.clicked.connect(self.edit_person)
+        self.edit_person_pb.clicked.connect(self.activate_button)
         self.delete_person_pb.clicked.connect(self.delete_person)
+        self.delete_person_pb.clicked.connect(self.activate_button)
+        self.table.itemSelectionChanged.connect(self.activate_button)
 
         # actions
         self.table.resize_to_content()
         self.fill_the_table(PersonToCheck.get_all())
+        self.activate_button()
+
+    def activate_button(self):
+        enabled = True if self.table.selectionModel().selectedRows(0) else False
+        self.edit_person_pb.setEnabled(enabled)
+        self.delete_person_pb.setEnabled(enabled)
 
     def fill_the_table(self, persons: list[PersonToCheck]):
         self.table.setRowCount(0)
@@ -79,4 +88,3 @@ class PersonToCheckWidget(BaseWidget):
         person = PersonToCheck.get_by_id(person_id)
         person.delete()
         self.fill_the_table(PersonToCheck.get_all())
-
