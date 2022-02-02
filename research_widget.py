@@ -165,8 +165,6 @@ class ResearchWidget(BaseWidget):
     @staticmethod
     def create_event_qr(research: Research) -> None:
         event = research.event
-        # if os.path.exists(research.dir_path + '\\event.png'):
-        #     os.remove(research.dir_path + '\\event.png')
         event_to_qr = event.number_to_string() + '*' + \
                       event.convert_formation_date() + '*' + \
                       event.convert_incident_date() + '*' + \
@@ -208,8 +206,6 @@ class ResearchWidget(BaseWidget):
     @staticmethod
     def create_person_qr(research: Research, persons_to_check: list[PersonToCheck]) -> None:
         persons_dir = research.dir_path + '\\person'
-        # if os.path.exists(persons_dir):
-        #     shutil.rmtree(persons_dir)
         os.mkdir(persons_dir)
         for person in persons_to_check:
             filename = f'{person.id}_{person.create_name_reduction()}_{person.convert_date()}.png'
@@ -230,7 +226,7 @@ class ResearchWidget(BaseWidget):
         persons = persons_to_check
         return dict(
             name='МВД РОССИИ',
-            regional_department='МВД РОССИИ ПО РЕСПУБЛИКЕ ХАКАСИЯ',
+            regional_department='МИНИСТЕРСТВО ВНУТРЕННИХ ДЕЛ РОССИИ ПО РЕСПУБЛИКЕ ХАКАСИЯ',
             department_address='',
             research=research,
             persons=persons

@@ -21,7 +21,7 @@ HTML_PERSON = '''
 
       .research-header {
           display: flex;
-          padding-top: 17mm;
+          padding-top: 5mm;
       }
 
       .init-division-info {
@@ -111,10 +111,13 @@ HTML_PERSON = '''
       }
 
       .qr-container {
+          margin-top: 17mm;
+          height: 50mm;
           display: flex;
           align-self: center;
           justify-content: space-between;        
-          page-break-after: always;  
+          page-break-after: always;
+          page-break-inside: avoid; 
       }
 
       .qr-image {
@@ -207,6 +210,7 @@ HTML_PERSON = '''
             </div>
             <div class="text-title-bold">
                <p>{{ name }}</p>
+               <br>
                <p>{{ regional_department }}</p>
             </div>
             <div class="text-bold">
@@ -277,11 +281,7 @@ HTML_PERSON = '''
             {% endif %}
             </div>
          </div>
-         <div class="qr-container">
-            <img class="qr-image" src="{{ research.dir_path + '\\initiator.png' }}" alt=""> 
-            <img class="qr-image" src="{{ research.dir_path + '\\executor.png' }}" alt="">
-            <img class="qr-image" src="{{ research.dir_path + '\\event.png' }}" alt="">        
-         </div>
+
       </div>
       <div class="research-person">
       {% for person in persons %}
@@ -326,6 +326,11 @@ HTML_PERSON = '''
                   <p>{{ research.initiator.create_name_reduction() }}</p>
                </div>
             </div>
+         </div>
+         <div class="qr-container">
+            <img class="qr-image" src="{{ research.dir_path + '\\initiator.png' }}" alt=""> 
+            <img class="qr-image" src="{{ research.dir_path + '\\executor.png' }}" alt="">
+            <img class="qr-image" src="{{ research.dir_path + '\\event.png' }}" alt="">        
          </div>
       </div>
    </div>
