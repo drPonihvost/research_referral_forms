@@ -163,10 +163,8 @@ class ResearchWidget(BaseWidget):
             self.create_research_dir(research)
 
     @staticmethod
-    def create_event_qr(research):
+    def create_event_qr(research: Research) -> None:
         event = research.event
-        if os.path.exists(research.dir_path + '\\event.png'):
-            os.remove(research.dir_path + '\\event.png')
         event_to_qr = event.number_to_string() + '*' + \
                       event.convert_formation_date() + '*' + \
                       event.convert_incident_date() + '*' + \
@@ -178,10 +176,36 @@ class ResearchWidget(BaseWidget):
         img.save(research.dir_path + '\\event.png')
 
     @staticmethod
+    def create_initiator_qr(research: Research) -> None:
+        initiator = research.initiator
+        initiator_to_qr = initiator.division.division_full_name + '*' + \
+            initiator.division.division_red_name + '*' + \
+            initiator.surname + '*' + \
+            initiator.name + '*' + \
+            initiator.patronymic + '*' + \
+            initiator.post + '*' + \
+            initiator.rank
+        initiator_to_qr = initiator_to_qr.encode('utf-8')
+        img = qrcode.make(initiator_to_qr)
+        img.save(research.dir_path + '\\initiator.png')
+
+    @staticmethod
+    def create_executor_qr(research: Research) -> None:
+        executor = research.executor
+        executor_to_qr = executor.division.division_full_name + '*' + \
+                          executor.division.division_red_name + '*' + \
+                          executor.surname + '*' + \
+                          executor.name + '*' + \
+                          executor.patronymic + '*' + \
+                          executor.post + '*' + \
+                          executor.rank
+        executor_to_qr = executor_to_qr.encode('utf-8')
+        img = qrcode.make(executor_to_qr)
+        img.save(research.dir_path + '\\executor.png')
+
+    @staticmethod
     def create_person_qr(research: Research, persons_to_check: list[PersonToCheck]) -> None:
         persons_dir = research.dir_path + '\\person'
-        if os.path.exists(persons_dir):
-            shutil.rmtree(persons_dir)
         os.mkdir(persons_dir)
         for person in persons_to_check:
             filename = f'{person.id}_{person.create_name_reduction()}_{person.convert_date()}.png'
@@ -202,25 +226,10 @@ class ResearchWidget(BaseWidget):
         persons = persons_to_check
         return dict(
             name='МВД РОССИИ',
-            regional_department='МВД РОССИИ ПО РЕСПУБЛИКЕ ХАКАСИЯ',
-            full_name_of_department=research.initiator.division.division_full_name,
-            reduce_name_of_department=research.initiator.division.division_red_name,
+            regional_department='МИНИСТЕРСТВО ВНУТРЕННИХ ДЕЛ РОССИИ ПО РЕСПУБЛИКЕ ХАКАСИЯ',
             department_address='',
-            addressees_post=research.addressee.post,
-            addressees_division=research.addressee.division.division_red_name,
-            addressees_rank=research.addressee.rank,
-            addressees_name=research.addressee.create_name_reduction(),
-            case=research.event.number_to_string(),
-            article='' if not research.event.article else research.event.article,
-            plot='' if not research.event.plot else research.event.plot,
-            event_date=research.event.convert_incident_date(),
-            event_address='' if not research.event.address else research.event.address,
-            plot_qr_image=research.dir_path + '\\event.png',
-            persons=persons,
-            person_count=PersonToCheck.get_count_by_research(research.id),
-            init_post=research.initiator.post,
-            init_rank=research.initiator.rank,
-            init_name=research.initiator.create_name_reduction()
+            research=research,
+            persons=persons
         )
 
     def fill_html_template(self, research: Research, template: str, persons_to_check: list[PersonToCheck]):
@@ -261,6 +270,8 @@ class ResearchWidget(BaseWidget):
             if research:
                 self.set_research_dir(research)
                 self.create_event_qr(research)
+                self.create_initiator_qr(research)
+                self.create_executor_qr(research)
                 self.create_person_qr(research, PersonToCheck.get_by_research(research.id))
                 self.create_pdf(research, PersonToCheck.get_by_research(research.id))
             self.fill_the_table(Research.get_all())

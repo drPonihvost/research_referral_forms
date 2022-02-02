@@ -21,7 +21,7 @@ HTML_PERSON = '''
 
       .research-header {
           display: flex;
-          padding-top: 17mm;
+          padding-top: 5mm;
       }
 
       .init-division-info {
@@ -90,27 +90,39 @@ HTML_PERSON = '''
 
       .plot-title {
           text-align: center;
-          padding-top: 12.5mm;
-          padding-bottom: 12.5mm;
+          padding-top: 5mm;
+          padding-bottom: 5mm;
       }
 
       .plot {
           display: flex;
-          /*padding-bottom: 12.5mm;*/
           width: 100%;
       }
 
       .plot-event {
           width: 100%;
       }
-
-      .qr-container {
-          align-self: center;
+      
+      .sending_information {
+          width: 100%;
+          text-align: justify;
+          text-indent: 12.5mm;
+          margin-bottom
       }
 
-      .plot-qr {
-          width: 40mm;
-          height: 40mm;
+      .qr-container {
+          margin-top: 17mm;
+          height: 50mm;
+          display: flex;
+          align-self: center;
+          justify-content: space-between;        
+          page-break-after: always;
+          page-break-inside: avoid; 
+      }
+
+      .qr-image {
+          width: 50mm;
+          height: 50mm;
       }
 
       .permission {}
@@ -136,17 +148,20 @@ HTML_PERSON = '''
 
       .serial-number {
           align-self: center;
-      }
-
-      .person-info {
-          width: 100%;
-          align-self: center;
-      }
-
-      .serial-number {
           width: 10mm;
           font-size: 13pt;
           text-align: center;
+      }
+      
+      .person-info-container {
+          width: 100%;
+      }
+      
+      .person-info {
+          display: table-cell;
+          height: 40mm;
+          vertical-align: middle;
+          
       }
 
       .person-qr {
@@ -154,8 +169,6 @@ HTML_PERSON = '''
           width: 40mm;
           height: 40mm;
       }
-
-      .person-info {}
 
       .research-permission {
           padding-top: 15mm;
@@ -197,12 +210,13 @@ HTML_PERSON = '''
             </div>
             <div class="text-title-bold">
                <p>{{ name }}</p>
+               <br>
                <p>{{ regional_department }}</p>
             </div>
             <div class="text-bold">
                <br>
-               <p>{{ full_name_of_department }}</p>
-               <p>({{ reduce_name_of_department }})</p>
+               <p>{{ research.initiator.division.division_full_name }}</p>
+               <p>({{ research.initiator.division.division_red_name }})</p>
             </div>
             <div class="text">
                <p>{{ department_address }}</p>
@@ -231,12 +245,12 @@ HTML_PERSON = '''
          </div>
          <div class="addressees">
             <div class="post-division">
-               <p>{{ addressees_post.capitalize() }} {{ addressees_division }}</p>
+               <p>{{ research.addressee.post.capitalize() }} {{ research.addressee.division.division_red_name }}</p>
             </div>
             <br>
             <div class="rank-name">
-               <p>{{ addressees_rank }}</p>
-               <p>{{ addressees_name }}</p>
+               <p>{{ research.addressee.rank }}</p>
+               <p>{{ research.addressee.create_name_reduction() }}</p>
             </div>
          </div>
       </div>
@@ -244,30 +258,43 @@ HTML_PERSON = '''
          <div class="plot-title">
             <p>Направление на исследование</p>
          </div>
+         <div class="sending_information">
+                {% if persons|length > 1 %}
+                <p>В связи с нижеизложенными обстоятельствами направляю в Ваш адрес буккальный эпителий лиц подлежащих проверке по федеральной
+базе данных геномной информации (ФБДГИ)</p>
+                {% else %}
+                <p>В связи с нижеизложенными обстоятельствами направляю в Ваш адрес буккальный эпителий лица подлежащего проверке по федеральной
+базе данных геномной информации (ФБДГИ)</p>
+                {% endif %}
+         </div>
+         <br>
          <div class="plot">
             <div class="plot-event">
-               <p>В связи с проведением проверки по: {{ case }};</p>
-               <p>Статья: {{ article }};</p>
-               <p>Событие: {{ plot }};</p>
-               <p>Дата происшествия: {{ event_date }};</p>
-               <p>Адрес: {{ event_address }};</p>
-            </div>
-            <div class="qr-container">
-               <img class="plot-qr" src="{{ plot_qr_image }}" alt="">
+            {% if research.event.case_type == 'other' %}
+               <p>Основание проверки: {{ research.event.number_to_string() }} от {{ research.event.convert_formation_date() }}</p>
+            {% else %}
+               <p>Основание проверки: {{ research.event.number_to_string() }} от {{ research.event.convert_formation_date() }};</p>
+               <p>Статья: {{ '' if not research.event.article else research.event.article }};</p>
+               <p>Событие: {{ '' if not research.event.plot else research.event.plot }};</p>
+               <p>Дата происшествия: {{ research.event.convert_incident_date() }};</p>
+               <p>Адрес места происшествия: {{ '' if not research.event.address else research.event.address }};</p>
+            {% endif %}
             </div>
          </div>
+
       </div>
       <div class="research-person">
       {% for person in persons %}
          <div class="person-table">
-            <div class="serial-number">{{ person.number }}</div>
-            <div class="person-info">
-               <p>Фамилия: {{ person.surname }}</p>
-               <p>Имя: {{ person.name }}</p>
-               <p>Отчество: {{ person.patronymic }}</p>
-               <p>Дата рождения: {{ person.convert_date() }}</p>
-               <p>Место рождения: {{ person.birthplace }} </p>
-            </div>
+            <div class="serial-number">{{ loop.index }}</div>
+            <div class="person-info-container">
+                <div class="person-info">
+                   <p>Фамилия: {{ person.surname }}</p>
+                   <p>Имя: {{ person.name }}</p>
+                   <p>Отчество: {{ person.patronymic }}</p>
+                   <p>Дата рождения: {{ person.convert_date() }} г.р.</p>
+                </div>
+            </div>    
             <div class="person-qr">
                <img class="person-qr" src="{{ person.img_path }}" alt="">
             </div>
@@ -276,26 +303,34 @@ HTML_PERSON = '''
       </div>
       <div class="research-permission">
          <div class="permission">
-            <p>Прошу установить генотип проверяемого лица и проверить его по федеральной базе данных геномной информации
-               (ФБДГИ).</p>
+            {% if persons|length > 1 %}
+            <p>Прошу установить генотипы проверяемых лиц и проверить по ФБДГИ.</p>
+            {% else %}
+            <p>Прошу установить генотип проверяемого лица и проверить его по ФБДГИ.</p>
+            {% endif %}
             <p>Разрешаю повреждение и уничтожение представленных объектов в размерах, необходимых для проведения
                исследования.</p>
          </div>
          <div class="annexes">
-            <p>Приложение: конверт с образцом буккального эпителия ({{ person_count }} шт.)</p>
+            <p>Приложение: конверт с образцом буккального эпителия ({{ persons|length }} шт.)</p>
          </div>
          <br>
          <br>
          <div class="signatures">
             <div class="signatures-initiator">
-               <p>{{ init_post.capitalize() }}</p>
-               <p>{{ init_rank }}</p>
+               <p>{{ research.initiator.post.capitalize() }}</p>
+               <p>{{ research.initiator.rank }}</p>
             </div>
             <div class="signatures-initials">
                <div class="initials">
-                  <p>{{ init_name }}</p>
+                  <p>{{ research.initiator.create_name_reduction() }}</p>
                </div>
             </div>
+         </div>
+         <div class="qr-container">
+            <img class="qr-image" src="{{ research.dir_path + '\\initiator.png' }}" alt=""> 
+            <img class="qr-image" src="{{ research.dir_path + '\\executor.png' }}" alt="">
+            <img class="qr-image" src="{{ research.dir_path + '\\event.png' }}" alt="">        
          </div>
       </div>
    </div>
