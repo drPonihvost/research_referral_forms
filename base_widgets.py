@@ -73,7 +73,7 @@ class ResearchTable(QTableWidget, BaseWidget):
     def __init__(self):
         super().__init__()
         _HEADER_ITEMS = ('Идентификатор', 'Дата создания', 'Дата изменения', 'Основание', ' Дата происшествия',
-                         'Адрес места проичшествия', 'Событие', 'ст. УК РФ', 'Количество лиц', 'Дата формирования',
+                         'Адрес места проишествия', 'Событие', 'ст. УК РФ', 'Количество лиц', 'Дата формирования',
                          'Инициатор', 'Адресат',
                          'Исполнитель')
 
@@ -86,7 +86,8 @@ class ResearchTable(QTableWidget, BaseWidget):
     def resize_to_content(self):
         self.resizeColumnsToContents()
         self.setColumnWidth(5, 250)
-        self.setColumnWidth(6, 300)
+        self.setColumnWidth(6, 250)
+        self.setColumnWidth(7, 250)
 
         self.resizeRowsToContents()
 
@@ -106,6 +107,8 @@ class PersonTable(QTableWidget, BaseWidget):
 
     def resize_to_content(self):
         self.resizeColumnsToContents()
+        self.setColumnWidth(5, 200)
+        self.setColumnWidth(6, 200)
         self.resizeRowsToContents()
 
 
@@ -136,7 +139,10 @@ class OfficialPersonTable(QTableWidget, BaseWidget):
 
     def resize_to_content(self):
         self.resizeColumnsToContents()
-        self.setColumnWidth(4, 270)
+        self.setColumnWidth(1, 250)
+        self.setColumnWidth(2, 150)
+        self.setColumnWidth(3, 150)
+        self.setColumnWidth(4, 250)
         self.resizeRowsToContents()
 
 
@@ -156,6 +162,7 @@ class EventTable(QTableWidget, BaseWidget):
     def resize_to_content(self):
         self.resizeColumnsToContents()
         self.resizeRowsToContents()
-        self.setColumnWidth(2, 300)
-        self.setColumnWidth(4, 300)
+        self.setColumnWidth(2, 250)
+        self.setColumnWidth(4, 250)
+        self.setColumnWidth(5, 250)
         self.resizeRowsToContents()
