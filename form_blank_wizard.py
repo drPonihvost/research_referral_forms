@@ -9,6 +9,7 @@ from models import Research
 class FormBlankWizard(QWizard, BaseWidget):
     def __init__(self, research_id):
         super().__init__()
+        self.setWizardStyle(QWizard.ModernStyle)
         self.research = Research.get_by_id(research_id)
         self.addPage(OfficialPersonPage(self.research.initiator_id, 'initiator'))
         self.addPage(OfficialPersonPage(self.research.addressee_id, 'addressee'))
@@ -32,9 +33,9 @@ class OfficialPersonPage(QWizardPage, BaseWidget):
     def __init__(self, off_person_id, off_person):
         super().__init__()
         param = dict(
-            initiator=('Инициатор', 'Выберите инициатора'),
-            addressee=('Адресат', 'Выберите адресата'),
-            executor=('Исполнитель', 'Выберите исполнителя')
+            initiator=('Инициатор', 'Выберите инициатора:'),
+            addressee=('Адресат', 'Выберите адресата:'),
+            executor=('Исполнитель', 'Выберите исполнителя:')
         )
         self.off_person_id_le = QLineEdit()
         self.off_person = off_person
@@ -42,7 +43,6 @@ class OfficialPersonPage(QWizardPage, BaseWidget):
         if self.off_person_id:
             self.off_person_id_le.setText(str(self.off_person_id))
         self.registerField(off_person, self.off_person_id_le)
-        self.setSubTitle(param[off_person][0])
         self.setTitle(param[off_person][1])
         self.widget = OfficialPersonWidget(off_person)
         self.layout = QVBoxLayout()

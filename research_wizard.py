@@ -24,6 +24,7 @@ class ResearchWizard(QWizard, BaseWidget):
         self.setButtonText(QWizard.NextButton, 'Далее')
         self.setButtonText(QWizard.CancelButton, 'Отмена')
         self.setButtonText(QWizard.FinishButton, 'Готово')
+        self.setWizardStyle(QWizard.ModernStyle)
 
         self.center_and_set_the_size(0.6, 0.5)
 
@@ -34,7 +35,6 @@ class ResearchPage(QWizardPage, BaseWidget):
         self.research = research
         self.date_le = QLineEdit()
         self.date_le.setMaximumWidth(250)
-        self.setSubTitle('Дата создания направления')
         self.setTitle('Установите дату создания направления:')
         self.registerField('date', self.date_le)
         self.layout = QVBoxLayout()
@@ -55,6 +55,7 @@ class ResearchPage(QWizardPage, BaseWidget):
 class EventPage(QWizardPage, BaseWidget):
     def __init__(self, research, parent=None):
         super(EventPage, self).__init__(parent)
+        self.setTitle('Выберите или создайте событие:')
         self.date_of_record = None
         self.research_id = None
         self.research = research
@@ -113,6 +114,7 @@ class EventPage(QWizardPage, BaseWidget):
 class PersonPage(QWizardPage):
     def __init__(self, research, parent=None):
         super(PersonPage, self).__init__(parent)
+        self.setTitle('Занесите в таблицу все лица направленные на проверку по текущему событию:')
         self.research = research
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
