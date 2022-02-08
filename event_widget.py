@@ -60,13 +60,14 @@ class EventWidget(BaseWidget):
         for event in reversed(events):
             row = self.table.rowCount()
             self.table.insertRow(row)
-            self.table.setItem(row, 0, QTableWidgetItem(event.number_to_string()))
-            self.table.setItem(row, 1, QTableWidgetItem(event.convert_formation_date()))
-            self.table.setItem(row, 2, QTableWidgetItem(event.plot))
-            self.table.setItem(row, 3, QTableWidgetItem(event.convert_incident_date()))
-            self.table.setItem(row, 4, QTableWidgetItem(event.address))
-            self.table.setItem(row, 5, QTableWidgetItem(event.article))
-            self.table.setItem(row, 6, QTableWidgetItem(str(event.id)))
+            self.table.setItem(row, 0, QTableWidgetItem(str(event.id)))
+            self.table.setItem(row, 1, QTableWidgetItem(event.number_to_string()))
+            self.table.setItem(row, 2, QTableWidgetItem(event.convert_formation_date()))
+            self.table.setItem(row, 3, QTableWidgetItem(event.plot))
+            self.table.setItem(row, 4, QTableWidgetItem(event.convert_incident_date()))
+            self.table.setItem(row, 5, QTableWidgetItem(event.address))
+            self.table.setItem(row, 6, QTableWidgetItem(event.article))
+
         self.table.resize_to_content()
 
     def add_event(self):
@@ -91,7 +92,7 @@ class EventWidget(BaseWidget):
 
     def edit_event(self):
         row = self.table.currentRow()
-        event_id = self.table.item(row, 6).text()
+        event_id = self.table.item(row, 0).text()
         event_db = Event.get_by_id(event_id)
         event_form = EventForm()
         event_form.fill_the_form(event_db)
@@ -110,7 +111,7 @@ class EventWidget(BaseWidget):
         self.table.selectRow(row)
 
     def delete_event(self):
-        event_id = self.table.item(self.table.currentRow(), 6).text()
+        event_id = self.table.item(self.table.currentRow(), 0).text()
         research = Research.get_by_event(event_id)
         if research:
             message = ErrorWidget(

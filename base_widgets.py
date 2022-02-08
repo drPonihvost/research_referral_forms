@@ -73,9 +73,8 @@ class ResearchTable(QTableWidget, BaseWidget):
     def __init__(self):
         super().__init__()
         _HEADER_ITEMS = ('Идентификатор', 'Дата создания', 'Дата изменения', 'Основание', ' Дата происшествия',
-                         'Адрес места проишествия', 'Событие', 'ст. УК РФ', 'Количество лиц', 'Дата формирования',
-                         'Инициатор', 'Адресат',
-                         'Исполнитель')
+                         'Адрес места проишествия', 'Событие', 'ст. УК РФ', 'Родственный поиск', 'Количество лиц',
+                         'Дата формирования', 'Инициатор', 'Адресат', 'Исполнитель')
 
         self.setColumnCount(len(_HEADER_ITEMS))
         self.setHorizontalHeaderLabels(_HEADER_ITEMS)
@@ -88,7 +87,7 @@ class ResearchTable(QTableWidget, BaseWidget):
         self.setColumnWidth(5, 250)
         self.setColumnWidth(6, 250)
         self.setColumnWidth(7, 250)
-
+        self.setColumnHidden(0, True)
         self.resizeRowsToContents()
 
 
@@ -115,11 +114,12 @@ class PersonTable(QTableWidget, BaseWidget):
 class PersonTableForWizard(PersonTable):
     def __init__(self):
         super().__init__()
-        _HEADER_ITEMS = ('Фамилия', 'Имя', 'Отчество', 'Дата рождения', 'Пол', 'Место рождения', 'Место пребывания',
-                         'Идентификатор')
+        _HEADER_ITEMS = ('Фамилия', 'Имя', 'Отчество', 'Дата рождения', 'Пол', 'Родственник', 'Место рождения',
+                         'Место пребывания', 'Идентификатор')
 
         self.setColumnCount(len(_HEADER_ITEMS))
         self.setHorizontalHeaderLabels(_HEADER_ITEMS)
+        self.setColumnHidden(8, True)
 
 
 class OfficialPersonTable(QTableWidget, BaseWidget):
@@ -149,15 +149,15 @@ class OfficialPersonTable(QTableWidget, BaseWidget):
 class EventTable(QTableWidget, BaseWidget):
     def __init__(self):
         super().__init__()
-        _HEADER_ITEMS = ('Номер', 'Дата регистрации', 'Происшествие', 'Дата происшествия', 'Адрес происшествия',
-                         'Статья', 'Идентификатор')
+        _HEADER_ITEMS = ('Идентификатор', 'Номер', 'Дата регистрации', 'Происшествие', 'Дата происшествия', 'Адрес происшествия',
+                         'Статья')
 
         self.setColumnCount(len(_HEADER_ITEMS))
         self.setHorizontalHeaderLabels(_HEADER_ITEMS)
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.setColumnHidden(6, True)
+        self.setColumnHidden(0, True)
 
     def resize_to_content(self):
         self.resizeColumnsToContents()
