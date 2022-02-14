@@ -32,12 +32,14 @@ class ResearchWidget(BaseWidget):
 
         # buttons
         self.add_research_pb = QPushButton('Создать')
+        self.add_related_research_pb = QPushButton('Создать на родственника')
         self.change_research_pb = QPushButton('Изменить')
         self.form_research_pb = QPushButton('Сформировать')
         self.delete_research_pb = QPushButton('Удалить')
 
         # configuration
         self.button_layout.addWidget(self.add_research_pb)
+        self.button_layout.addWidget(self.add_related_research_pb)
         self.button_layout.addWidget(self.change_research_pb)
         self.button_layout.addWidget(self.form_research_pb)
         self.button_layout.addWidget(self.delete_research_pb)
@@ -49,6 +51,7 @@ class ResearchWidget(BaseWidget):
 
         # signals
         self.add_research_pb.clicked.connect(self.create_research)
+        self.add_related_research_pb.clicked.connect(self.created_related_research)
         self.change_research_pb.clicked.connect(self.edit_research)
         self.delete_research_pb.clicked.connect(self.delete_research)
         self.form_research_pb.clicked.connect(self.form_blank)
@@ -85,11 +88,12 @@ class ResearchWidget(BaseWidget):
             self.table.setItem(row, 5, QTableWidgetItem(research.event.address))
             self.table.setItem(row, 6, QTableWidgetItem(research.event.plot))
             self.table.setItem(row, 7, QTableWidgetItem(research.event.article))
-            self.table.setItem(row, 8, QTableWidgetItem(str(persons_to_check_count)))
-            self.table.setItem(row, 9, QTableWidgetItem(research.convert_dispatch_date()))
-            self.table.setItem(row, 10, QTableWidgetItem(initiator))
-            self.table.setItem(row, 11, QTableWidgetItem(addressee))
-            self.table.setItem(row, 12, QTableWidgetItem(executor))
+            self.table.setItem(row, 8, QTableWidgetItem(research.get_related()))
+            self.table.setItem(row, 9, QTableWidgetItem(str(persons_to_check_count)))
+            self.table.setItem(row, 10, QTableWidgetItem(research.convert_dispatch_date()))
+            self.table.setItem(row, 11, QTableWidgetItem(initiator))
+            self.table.setItem(row, 12, QTableWidgetItem(addressee))
+            self.table.setItem(row, 13, QTableWidgetItem(executor))
         self.table.resize_to_content()
 
     def create_research(self):
@@ -98,16 +102,18 @@ class ResearchWidget(BaseWidget):
         self.fill_the_table(Research.get_all())
         self.activate_button()
 
+    def created_related_research(self):
+        wizard = ResearchWizard(related=True)
+        wizard.exec()
+        self.fill_the_table(Research.get_all())
+        self.activate_button()
+
     def edit_research(self):
-        research_id = self.table.item(self.table.currentRow(), 0).text()
-        wizard = ResearchWizard(research_id)
+        research = Research.get_by_id(self.table.item(self.table.currentRow(), 0).text())
+        wizard = ResearchWizard(research)
         event = wizard.exec()
         if event:
-            research = Research.get_by_id(research_id)
-            research.initiator_id = None
-            research.addressee_id = None
-            research.executor_id = None
-            research.date_of_dispatch = None
+
             research.update()
         self.fill_the_table(Research.get_all())
         self.activate_button()

@@ -16,6 +16,7 @@ class PersonToCheckForm(BaseForm):
             name_tip='Иван',
             patronymic_tip='Иванович',
             birthplace_tip='Республика Хакасия, г. Абакан',
+            related='Мать (Отец)',
             reg_place_tip='Республика Хакасия, г. Абакан, ул. Ленина, д. 12'
         )
 
@@ -28,6 +29,7 @@ class PersonToCheckForm(BaseForm):
         self.patronymic_le = LineEditWithTip(tip=_NOMINATIVE_CASE['patronymic_tip'])
         self.birthday_le = LineEditWithTip()
         self.birthday_le.setInputMask("00.00.0000")
+        self.related_le = LineEditWithTip(tip=_NOMINATIVE_CASE['related'])
         self.birthplace_le = LineEditWithTip(tip=_NOMINATIVE_CASE['birthplace_tip'])
         self.reg_place_le = LineEditWithTip(tip=_NOMINATIVE_CASE['reg_place_tip'])
 
@@ -47,6 +49,8 @@ class PersonToCheckForm(BaseForm):
         self.form_layout.addRow(QLabel('Пол:'), self.gender_layout)
         self.form_layout.addRow(QLabel('Дата рождения:'), self.birthday_le)
         self.form_layout.addRow(QLabel('Место рождения:'), self.birthplace_le)
+        if research.related_search:
+            self.form_layout.addRow(QLabel('Кем приходится:'), self.related_le)
         self.form_layout.addRow(QLabel('Место пребывания:'), self.reg_place_le)
 
         self.main_layout.addLayout(self.form_layout)
@@ -72,8 +76,12 @@ class PersonToCheckForm(BaseForm):
         self.birthday_le.setText(person.convert_date())
         self.birthplace_le.setText(person.birthplace)
         self.reg_place_le.setText(person.reg_place)
+        self.related_le.setText(person.related)
 
     def get_data(self):
+        related = None
+        if self.research.related_search:
+            related = self.related_le.text()
         return dict(
             surname=self.surname_le.text(),
             name=self.name_le.text(),
@@ -81,6 +89,7 @@ class PersonToCheckForm(BaseForm):
             male=True if self.male_radio.isChecked() else False,
             birthday=self.convert_date(self.birthday_le.text()),
             birthplace=self.birthplace_le.text(),
+            related=related,
             reg_place=self.reg_place_le.text(),
             research=self.research
         )

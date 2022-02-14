@@ -63,7 +63,7 @@ class PersonToCheckWidget(BaseWidget):
     def go_over_research(self):
         person = PersonToCheck.get_by_id(self.table.item(self.table.currentRow(), 7).text())
         research = person.research
-        wizard = ResearchWizard(research.id)
+        wizard = ResearchWizard(research)
         wizard.next()
         wizard.next()
         event = wizard.exec()

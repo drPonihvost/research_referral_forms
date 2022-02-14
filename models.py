@@ -95,11 +95,16 @@ class Research(BaseModel):
         return self.date_of_recording.strftime('%d.%m.%Y')
 
     def convert_change_date(self):
-        return self.date_of_recording.strftime('%d.%m.%Y')
+        return self.date_of_change.strftime('%d.%m.%Y')
 
     def convert_dispatch_date(self):
         if self.date_of_dispatch:
             return self.date_of_dispatch.strftime('%d.%m.%Y')
+
+    def get_related(self):
+        return 'Да' if self.related_search else 'Нет'
+
+
 
 
 class Person(BaseModel):

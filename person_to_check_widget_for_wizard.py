@@ -64,9 +64,10 @@ class PersonToCheckWidgetForWizard(BaseWidget):
             self.table.setItem(row, 2, QTableWidgetItem(person.patronymic))
             self.table.setItem(row, 3, QTableWidgetItem(person.convert_date()))
             self.table.setItem(row, 4, QTableWidgetItem(person.get_gender()))
-            self.table.setItem(row, 5, QTableWidgetItem(person.birthplace))
-            self.table.setItem(row, 6, QTableWidgetItem(person.reg_place))
-            self.table.setItem(row, 7, QTableWidgetItem(str(person.id)))
+            self.table.setItem(row, 5, QTableWidgetItem(person.related))
+            self.table.setItem(row, 6, QTableWidgetItem(person.birthplace))
+            self.table.setItem(row, 7, QTableWidgetItem(person.reg_place))
+            self.table.setItem(row, 8, QTableWidgetItem(str(person.id)))
         self.table.resize_to_content()
 
     def add_person(self):
@@ -78,7 +79,7 @@ class PersonToCheckWidgetForWizard(BaseWidget):
         self.fill_the_table(PersonToCheck.get_by_research(self.research.id))
 
     def edit_person(self):
-        person_id = self.table.item(self.table.currentRow(), 7).text()
+        person_id = self.table.item(self.table.currentRow(), 8).text()
         person = PersonToCheck.get_by_id(person_id)
         person_to_check_form = PersonToCheckForm(person.research)
         person_to_check_form.fill_the_form(person)
@@ -91,12 +92,13 @@ class PersonToCheckWidgetForWizard(BaseWidget):
             person.male = data['male']
             person.birthday = data['birthday']
             person.birthplace = data['birthplace']
+            person.related = data['related']
             person.reg_place = data['reg_place']
             person.update()
         self.fill_the_table(PersonToCheck.get_by_research(self.research.id))
 
     def delete_person(self):
-        person_id = self.table.item(self.table.currentRow(), 7).text()
+        person_id = self.table.item(self.table.currentRow(), 8).text()
         person = PersonToCheck.get_by_id(person_id)
         person.delete()
         self.fill_the_table(PersonToCheck.get_by_research(self.research.id))
