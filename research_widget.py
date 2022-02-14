@@ -113,10 +113,7 @@ class ResearchWidget(BaseWidget):
         wizard = ResearchWizard(research)
         event = wizard.exec()
         if event:
-            research.initiator_id = None
-            research.addressee_id = None
-            research.executor_id = None
-            research.date_of_dispatch = None
+
             research.update()
         self.fill_the_table(Research.get_all())
         self.activate_button()

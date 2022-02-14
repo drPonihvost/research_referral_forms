@@ -8,7 +8,7 @@ HTML_PERSON = '''
             * {
           margin: 0;
           padding: 0;
-          font-family: Times New Roman, 'Times New Roman', Times, serif;
+          font-family: 'Times New Roman', Times, serif;
           font-size: 13pt;
       }
 
@@ -293,6 +293,9 @@ HTML_PERSON = '''
                    <p>Имя: {{ person.name }}</p>
                    <p>Отчество: {{ person.patronymic }}</p>
                    <p>Дата рождения: {{ person.convert_date() }} г.р.</p>
+                   {% if research.related_search %}
+                   <p>Степень родства: {{person.related}}</p>
+                   {% endif %}
                 </div>
             </div>    
             <div class="person-qr">
@@ -304,9 +307,9 @@ HTML_PERSON = '''
       <div class="research-permission">
          <div class="permission">
             {% if persons|length > 1 %}
-            <p>Прошу установить генотипы проверяемых лиц и проверить по ФБДГИ.</p>
+            <p>Прошу установить генотипы проверяемых лиц и проверить по {% if research.related_search %} массиву неопознанных трупов {% endif %} ФБДГИ.  </p>
             {% else %}
-            <p>Прошу установить генотип проверяемого лица и проверить его по ФБДГИ.</p>
+            <p>Прошу установить генотип проверяемого лица и проверить его по {% if research.related_search %} массиву неопознанных трупов {% endif %} ФБДГИ.</p>
             {% endif %}
             <p>Разрешаю повреждение и уничтожение представленных объектов в размерах, необходимых для проведения
                исследования.</p>

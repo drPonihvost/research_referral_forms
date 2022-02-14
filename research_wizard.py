@@ -94,6 +94,10 @@ class EventPage(QWizardPage, BaseWidget):
         self.research.date_of_recording = self.convert_date(self.date_of_record)
         self.research.date_of_change = datetime.utcnow()
         self.research.event = self.get_event()
+        self.research.initiator_id = None
+        self.research.addressee_id = None
+        self.research.executor_id = None
+        self.research.date_of_dispatch = None
         self.research.update()
 
     def add_research(self):
@@ -126,6 +130,8 @@ class PersonPage(QWizardPage):
         if not self.wizard().page(1).research:
             self.wizard().page(1).add_research()
             self.research = self.wizard().page(1).research
+        else:
+            self.wizard().page(1).edit_research()
         self.set_widget()
 
     def set_widget(self):
