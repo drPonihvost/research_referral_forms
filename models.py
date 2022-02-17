@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime
 
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Boolean, UniqueConstraint, or_
@@ -105,8 +106,6 @@ class Research(BaseModel):
         return 'Да' if self.related_search else 'Нет'
 
 
-
-
 class Person(BaseModel):
     __abstract__ = True
     surname = Column(String)
@@ -148,7 +147,10 @@ class Division(BaseModel):
     __table_args__ = (UniqueConstraint('division_red_name', 'person', name='_division_person'),)
     division_full_name = Column(String)
     division_red_name = Column(String)
+    division_address = Column(String)
+    phone = Column(String)
     person = Column(String)
+    central = Column(Boolean, default=False)
 
     @classmethod
     def get_by_full_and_red_name(cls, division_red_name, division_full_name, person):
@@ -249,10 +251,33 @@ class Event(BaseModel):
                                          cls.formation_date == formation_date).first()
 
 
+def load_json():
+    with open('initial_data.json', 'r', encoding='utf-8') as json_data:
+        data = json.load(json_data)
+        return data
+
+
 def init_db():
+    off_person_class = dict(
+        addressee=Addressee,
+        initiator=Initiator,
+        executor=Executor
+    )
     path = os.path.dirname(__file__)
     if not os.path.exists(f'{path}\\{DATABASE_NAME}'):
         Base.metadata.create_all(engine)
+        for division in load_json()[0]['division']:
+            Division(**division).save()
+        for off_person in load_json()[0]['off_person']:
+            division = off_person['division']
+            off_person_class[off_person['division']['person']](
+                surname=off_person['surname'],
+                name=off_person['name'],
+                patronymic=off_person['patronymic'],
+                post=off_person['post'],
+                rank=off_person['rank'],
+                division=Division(**division)
+            ).save()
     else:
         Base.metadata.create_all(engine)
 

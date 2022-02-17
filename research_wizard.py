@@ -94,10 +94,6 @@ class EventPage(QWizardPage, BaseWidget):
         self.research.date_of_recording = self.convert_date(self.date_of_record)
         self.research.date_of_change = datetime.utcnow()
         self.research.event = self.get_event()
-        self.research.initiator_id = None
-        self.research.addressee_id = None
-        self.research.executor_id = None
-        self.research.date_of_dispatch = None
         self.research.update()
 
     def add_research(self):

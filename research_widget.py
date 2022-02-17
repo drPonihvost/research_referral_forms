@@ -113,7 +113,10 @@ class ResearchWidget(BaseWidget):
         wizard = ResearchWizard(research)
         event = wizard.exec()
         if event:
-
+            research.initiator_id = None
+            research.addressee_id = None
+            research.executor_id = None
+            research.date_of_dispatch = None
             research.update()
         self.fill_the_table(Research.get_all())
         self.activate_button()
@@ -185,12 +188,12 @@ class ResearchWidget(BaseWidget):
     def create_initiator_qr(research: Research) -> None:
         initiator = research.initiator
         initiator_to_qr = initiator.division.division_full_name + '*' + \
-            initiator.division.division_red_name + '*' + \
-            initiator.surname + '*' + \
-            initiator.name + '*' + \
-            initiator.patronymic + '*' + \
-            initiator.post + '*' + \
-            initiator.rank
+                          initiator.division.division_red_name + '*' + \
+                          initiator.surname + '*' + \
+                          initiator.name + '*' + \
+                          initiator.patronymic + '*' + \
+                          initiator.post + '*' + \
+                          initiator.rank
         initiator_to_qr = initiator_to_qr.encode('utf-8')
         img = qrcode.make(initiator_to_qr)
         img.save(research.dir_path + '\\initiator.png')
@@ -199,12 +202,12 @@ class ResearchWidget(BaseWidget):
     def create_executor_qr(research: Research) -> None:
         executor = research.executor
         executor_to_qr = executor.division.division_full_name + '*' + \
-                          executor.division.division_red_name + '*' + \
-                          executor.surname + '*' + \
-                          executor.name + '*' + \
-                          executor.patronymic + '*' + \
-                          executor.post + '*' + \
-                          executor.rank
+                         executor.division.division_red_name + '*' + \
+                         executor.surname + '*' + \
+                         executor.name + '*' + \
+                         executor.patronymic + '*' + \
+                         executor.post + '*' + \
+                         executor.rank
         executor_to_qr = executor_to_qr.encode('utf-8')
         img = qrcode.make(executor_to_qr)
         img.save(research.dir_path + '\\executor.png')

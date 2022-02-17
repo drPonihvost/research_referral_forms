@@ -81,6 +81,11 @@ class OfficialPersonForm(BaseForm):
         self.delete_division_button.clicked.connect(self.delete_division)
         self.delete_division_button.clicked.connect(self.activate_button)
         self.division_cb.activated.connect(self.activate_button)
+        self.surname_le.textChanged.connect(self.activate_button)
+        self.name_le.textChanged.connect(self.activate_button)
+        self.patronymic_le.textChanged.connect(self.activate_button)
+        self.post_le.textChanged.connect(self.activate_button)
+        self.rank_le.textChanged.connect(self.activate_button)
 
         # action
         self.fill_combo_box()
@@ -92,7 +97,17 @@ class OfficialPersonForm(BaseForm):
         enable = True if self.division_cb.currentText() else False
         self.edit_division_button.setEnabled(enable)
         self.delete_division_button.setEnabled(enable)
-        self.add_button.setEnabled(enable)
+        self.add_button.setEnabled(enable and not self.field_validator())
+
+    def field_validator(self) -> bool:
+        fields = [
+            True if self.surname_le.text() else False,
+            True if self.name_le.text() else False,
+            True if self.patronymic_le.text() else False,
+            True if self.post_le.text() else False,
+            True if self.rank_le.text() else False
+        ]
+        return False in fields
 
     def fill_combo_box(self):
         self.division_cb.clear()
@@ -135,22 +150,13 @@ class OfficialPersonForm(BaseForm):
             post=self.post_le.text()
         )
 
-    @staticmethod
-    def check_for_uniqueness(red_name, person):
-        return Division.get_by_red_name(red_name, person)
-
     def add_division(self):
-        division_form_dialog = DivisionForm()
+        division_form_dialog = DivisionForm(division=self.get_division(), person=self.person)
         event = division_form_dialog.exec()
         if event:
-            data = division_form_dialog.get_data()
-            division = self.check_for_uniqueness(data['division_red_name'], self.person)
+            division = division_form_dialog.check_for_uniqueness()
             if not division:
-                Division(
-                    division_full_name=data['division_full_name'],
-                    division_red_name=data['division_red_name'],
-                    person=self.person
-                ).save()
+                division_form_dialog.add_division()
             else:
                 message = ErrorWidget(
                     text='Такая запись уже существует',
@@ -160,18 +166,13 @@ class OfficialPersonForm(BaseForm):
         self.fill_combo_box()
 
     def edit_division(self):
-        division_form_dialog = DivisionForm()
-        division = Division.get_by_red_name(self.division_cb.currentText(), self.person)
-        division_form_dialog.division_full_name.setPlainText(division.division_full_name)
-        division_form_dialog.division_red_name.setPlainText(division.division_red_name)
+        division_form_dialog = DivisionForm(division=self.get_division(), person=self.person)
+        division_form_dialog.set_data_in_form()
         event = division_form_dialog.exec()
         if event:
-            data = division_form_dialog.get_data()
-            new_division = self.check_for_uniqueness(data['division_red_name'], self.person)
-            if not new_division:
-                division.division_full_name = data['division_full_name']
-                division.division_red_name = data['division_red_name']
-                division.update()
+            division = division_form_dialog.check_for_uniqueness()
+            if not division:
+                division_form_dialog.edit_division()
             else:
                 message = ErrorWidget(
                     text='Такая запись уже существует',
