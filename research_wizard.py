@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QWizard, QWizardPage, QVBoxLayout, QLineEdit
 
 from base_widgets import BaseWidget
 from event_widget_group.event_widget import EventWidget
-from person_to_check_widget_for_wizard import PersonToCheckWidgetForWizard
+from person_to_check_widget_group.person_to_check_widget_for_wizard import PersonToCheckWidgetForWizard
 from models import Research, Event
 
 

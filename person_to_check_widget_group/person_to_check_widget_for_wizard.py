@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QPushButton, QTableWidgetItem, QVBoxLayout, QHBoxLayout
 
 from base_widgets import PersonTableForWizard, BaseWidget
-from person_to_check_form import PersonToCheckForm
+from person_to_check_widget_group.person_to_check_form import PersonToCheckForm
 from models import PersonToCheck
 
 

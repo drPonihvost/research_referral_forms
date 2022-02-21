@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QMainWindow, QTabWidget
 
 from base_widgets import BaseWidget
 from models import PersonToCheck, Research
-from person_to_check_widget import PersonToCheckWidget
+from person_to_check_widget_group.person_to_check_widget import PersonToCheckWidget
 from research_widget import ResearchWidget
 
 
