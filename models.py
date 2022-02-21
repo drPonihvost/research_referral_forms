@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime
+from typing import List
 
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Boolean, UniqueConstraint, or_
 from sqlalchemy.ext.declarative import declarative_base
@@ -38,7 +39,11 @@ class BaseModel(Base):
 
     @staticmethod
     def update():
-        session.commit()
+        try:
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            raise e
 
     def delete(self, commit=True):
         session.delete(self)
@@ -245,16 +250,30 @@ class Event(BaseModel):
         return case[self.case_type] + self.number
 
     @classmethod
-    def get_event_by_data(cls, case_type, number, formation_date: DateTime):
+    def get_event_by_data(cls, case_type, number, formation_date: datetime):
         return session.query(cls).filter(cls.case_type == case_type,
                                          cls.number == number,
                                          cls.formation_date == formation_date).first()
+
+    @classmethod
+    def get_all_by_case(cls, case: str) -> List or None:
+        return session.query(cls).filter_by(case_type=case).all()
+
+    @classmethod
+    def get_other_by_number(cls, number):
+        return session.query(cls).filter(cls.case_type == 'other',
+                                         cls.number == number).all()
+
+
+def convert_date(date: str) -> datetime:
+    f = '%d.%m.%Y'
+    return datetime.strptime(date, f)
 
 
 def load_json():
     with open('initial_data.json', 'r', encoding='utf-8') as json_data:
         data = json.load(json_data)
-        return data
+        return data['orm']
 
 
 def init_db():
@@ -266,9 +285,9 @@ def init_db():
     path = os.path.dirname(__file__)
     if not os.path.exists(f'{path}\\{DATABASE_NAME}'):
         Base.metadata.create_all(engine)
-        for division in load_json()[0]['division']:
+        for division in load_json()['division']:
             Division(**division).save()
-        for off_person in load_json()[0]['off_person']:
+        for off_person in load_json()['off_person']:
             division = off_person['division']
             off_person_class[off_person['division']['person']](
                 surname=off_person['surname'],
@@ -277,6 +296,12 @@ def init_db():
                 post=off_person['post'],
                 rank=off_person['rank'],
                 division=Division(**division)
+            ).save()
+        for event in load_json()['event']:
+            Event(
+                number=event['number'],
+                formation_date=convert_date(event['formation_date']),
+                case_type=event['case_type']
             ).save()
     else:
         Base.metadata.create_all(engine)
