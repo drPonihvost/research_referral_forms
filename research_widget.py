@@ -1,14 +1,15 @@
 import os
 import shutil
+from typing import List
 
 import qrcode
 
-from PySide6 import QtCore, QtPrintSupport, QtWebChannel, QtWebEngineCore
-from PySide6.QtCore import QMarginsF
-from PySide6.QtGui import QPageLayout, QPageSize
-from PySide6.QtWebEngineCore import QWebEnginePage
-from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
+from PySide2 import QtCore, QtPrintSupport, QtWebChannel, QtWebEngineCore
+from PySide2.QtCore import QMarginsF
+from PySide2.QtGui import QPageLayout, QPageSize
+from PySide2.QtWebEngineWidgets import QWebEnginePage
+from PySide2.QtWebEngineWidgets import QWebEngineView
+from PySide2.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
 from jinja2 import Template
 
 from base_widgets import BaseWidget, ResearchTable
@@ -69,7 +70,7 @@ class ResearchWidget(BaseWidget):
         self.form_research_pb.setEnabled(enabled)
         self.delete_research_pb.setEnabled(enabled)
 
-    def fill_the_table(self, researches: list[Research]):
+    def fill_the_table(self, researches: List[Research]):
         self.table.setRowCount(0)
         if not researches:
             return
@@ -213,7 +214,7 @@ class ResearchWidget(BaseWidget):
         img.save(research.dir_path + '\\executor.png')
 
     @staticmethod
-    def create_person_qr(research: Research, persons_to_check: list[PersonToCheck]) -> None:
+    def create_person_qr(research: Research, persons_to_check: List[PersonToCheck]) -> None:
         persons_dir = research.dir_path + '\\person'
         os.mkdir(persons_dir)
         for person in persons_to_check:
@@ -231,7 +232,7 @@ class ResearchWidget(BaseWidget):
             person.update()
 
     @staticmethod
-    def get_data_by_pdf(research: Research, persons_to_check: list[PersonToCheck]) -> dict:
+    def get_data_by_pdf(research: Research, persons_to_check: List[PersonToCheck]) -> dict:
         persons = persons_to_check
         return dict(
             name='МВД РОССИИ',
@@ -241,14 +242,14 @@ class ResearchWidget(BaseWidget):
             persons=persons
         )
 
-    def fill_html_template(self, research: Research, template: str, persons_to_check: list[PersonToCheck]):
+    def fill_html_template(self, research: Research, template: str, persons_to_check: List[PersonToCheck]):
         data = self.get_data_by_pdf(research, persons_to_check)
         template = Template(template)
         rendered_page = template.render(**data)
         with open(research.dir_path + '\\' + research.file_name + '.html', "w", encoding="UTF-8") as fh:
             fh.write(rendered_page)
 
-    def create_pdf(self, research: Research, persons_to_check: list[PersonToCheck]) -> None:
+    def create_pdf(self, research: Research, persons_to_check: List[PersonToCheck]) -> None:
         self.fill_html_template(research, HTML_PERSON, persons_to_check)
         page = QWebEnginePage()
         page.load(QtCore.QUrl.fromLocalFile(research.dir_path + f'\\{research.file_name}.html'))

@@ -1,7 +1,7 @@
 import datetime
 from typing import Dict, List
 
-from PySide6.QtWidgets import QLabel, QFormLayout
+from PySide2.QtWidgets import QLabel, QFormLayout
 
 from base_widgets import LineEditWithTip, PlainTextEditTabAction, BaseWidget, DateLineEdit, \
     LineEditForCriminalCase, ArticleCombo
@@ -118,7 +118,7 @@ class EventCaseWidget(BaseWidget):
 
 if __name__ == "__main__":
     import sys
-    from PySide6.QtWidgets import QApplication
+    from PySide2.QtWidgets import QApplication
     app = QApplication(sys.argv)
     w = EventCaseWidget()
     w.setup_ui('criminal')

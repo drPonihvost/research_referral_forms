@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QHBoxLayout, QComboBox, QPushButton, QLabel
+from PySide2.QtWidgets import QHBoxLayout, QComboBox, QPushButton, QLabel
 
 from base_widgets import BaseForm, LineEditWithTip
 from division_form import DivisionForm

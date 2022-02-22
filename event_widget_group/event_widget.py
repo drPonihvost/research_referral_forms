@@ -1,4 +1,6 @@
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
+from typing import List
+
+from PySide2.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
 
 from base_widgets import BaseWidget, EventTable
 from error_widget import ErrorWidget
@@ -68,7 +70,7 @@ class EventWidget(BaseWidget):
         self.edit_event_pb.setEnabled(enabled)
         self.delete_event_pb.setEnabled(enabled)
 
-    def fill_the_table(self, events: list[Event]):
+    def fill_the_table(self, events: List[Event]):
         self.table.setRowCount(0)
         if not events:
             return

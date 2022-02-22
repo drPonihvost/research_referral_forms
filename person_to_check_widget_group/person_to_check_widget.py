@@ -1,4 +1,6 @@
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
+from typing import List
+
+from PySide2.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
 
 from base_widgets import PersonTable, BaseWidget
 from models import PersonToCheck
@@ -41,7 +43,7 @@ class PersonToCheckWidget(BaseWidget):
         enabled = True if self.table.selectionModel().selectedRows(0) else False
         self.go_over_research_pb.setEnabled(enabled)
 
-    def fill_the_table(self, persons: list[PersonToCheck]):
+    def fill_the_table(self, persons: List[PersonToCheck]):
         self.table.setRowCount(0)
         if not persons:
             return

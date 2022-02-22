@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtWidgets import QDialog, QApplication
+from PySide2.QtWidgets import QDialog, QApplication
 from base_widgets import BaseWidget
 
 

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QLabel
+from PySide2.QtWidgets import QLabel
 
 from base_widgets import BaseForm, PlainTextEditTabAction, LineEditWithTip
 from models import Division

@@ -1,5 +1,5 @@
-from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QMainWindow, QTabWidget
+from PySide2.QtCore import Slot
+from PySide2.QtWidgets import QMainWindow, QTabWidget
 
 from base_widgets import BaseWidget
 from models import PersonToCheck, Research

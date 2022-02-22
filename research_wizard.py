@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from PySide6.QtWidgets import QWizard, QWizardPage, QVBoxLayout, QLineEdit
+from PySide2.QtWidgets import QWizard, QWizardPage, QVBoxLayout, QLineEdit
 
 from base_widgets import BaseWidget
 from event_widget_group.event_widget import EventWidget

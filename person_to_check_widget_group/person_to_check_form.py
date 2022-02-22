@@ -1,6 +1,6 @@
 import datetime
 
-from PySide6.QtWidgets import QLabel, QHBoxLayout, QRadioButton
+from PySide2.QtWidgets import QLabel, QHBoxLayout, QRadioButton
 
 from base_widgets import BaseForm, LineEditWithTip, DateLineEdit
 from error_widget import ErrorWidget
@@ -138,7 +138,7 @@ class PersonToCheckForm(BaseForm):
 
 if __name__ == "__main__":
     import sys
-    from PySide6.QtWidgets import QApplication
+    from PySide2.QtWidgets import QApplication
     app = QApplication(sys.argv)
     w = PersonToCheckForm(Research.get_by_id(3))
     w.show()

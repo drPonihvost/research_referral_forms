@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-from PySide6.QtWidgets import QGridLayout, QRadioButton, QButtonGroup, QVBoxLayout
+from PySide2.QtWidgets import QGridLayout, QRadioButton, QButtonGroup, QVBoxLayout
 
 from base_widgets import BaseForm
 from error_widget import ErrorWidget

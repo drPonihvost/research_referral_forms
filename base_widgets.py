@@ -3,9 +3,9 @@ import os
 
 from datetime import datetime
 
-from PySide6.QtCore import QRegularExpression
-from PySide6.QtGui import QFont, QGuiApplication, QRegularExpressionValidator, QMouseEvent
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QDialog, QFormLayout, QLineEdit, \
+from PySide2.QtCore import QRegularExpression
+from PySide2.QtGui import QFont, QGuiApplication, QRegularExpressionValidator, QMouseEvent
+from PySide2.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QDialog, QFormLayout, QLineEdit, \
     QPlainTextEdit, QTableWidget, \
     QAbstractItemView, QComboBox
 
