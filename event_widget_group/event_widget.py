@@ -1,8 +1,10 @@
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
+from typing import List
+
+from PySide2.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
 
 from base_widgets import BaseWidget, EventTable
 from error_widget import ErrorWidget
-from event_form import EventForm
+from event_widget_group.event_form import EventForm
 from models import Event, Research
 
 
@@ -48,12 +50,27 @@ class EventWidget(BaseWidget):
         self.activate_button()
 
     # slots
+    def select_row(self, db_event: Event) -> None:
+        for row in range(self.table.rowCount()):
+            if self.table.item(row, 0).text() == str(db_event.id):
+                self.table.selectRow(row)
+                return
+
+    def set_data(self, db_event: Event = None) -> None:
+        self.fill_the_table(Event.get_all())
+        if db_event:
+            self.select_row(db_event)
+
+    def get_event(self) -> Event:
+        event_id = self.table.item(self.table.currentRow(), 0).text()
+        return Event.get_by_id(event_id)
+
     def activate_button(self):
         enabled = True if self.table.selectionModel().selectedRows(0) else False
         self.edit_event_pb.setEnabled(enabled)
         self.delete_event_pb.setEnabled(enabled)
 
-    def fill_the_table(self, events: list[Event]):
+    def fill_the_table(self, events: List[Event]):
         self.table.setRowCount(0)
         if not events:
             return
@@ -67,59 +84,52 @@ class EventWidget(BaseWidget):
             self.table.setItem(row, 4, QTableWidgetItem(event.convert_incident_date()))
             self.table.setItem(row, 5, QTableWidgetItem(event.address))
             self.table.setItem(row, 6, QTableWidgetItem(event.article))
-
         self.table.resize_to_content()
 
-    def add_event(self):
+    def add_event(self) -> None:
         event_form = EventForm()
-        event = event_form.exec()
-        if event:
+        event_form.setup_ui()
+        event_form.set_radio('criminal')
+        if event_form.exec():
             data = event_form.get_data()
-            event = Event.get_event_by_data(
-                case_type=data['case_type'],
-                number=data['number'],
-                formation_date=data['formation_date']
-            )
-            if not event:
-                Event(**data).save()
-            else:
-                message = ErrorWidget(
-                    text='Такая запись уже существует',
-                    title='Ошибка добавления'
-                )
-                message.exec()
+            uniq = event_form.check_for_uniqueness(data)
+            if uniq:
+                error_widget = ErrorWidget(title='Ошибка записи', text='Такая запись уже существует')
+                error_widget.exec()
+                return
+            db_event = Event(**data).save()
+            self.select_row(db_event)
         self.fill_the_table(Event.get_all())
 
     def edit_event(self):
-        row = self.table.currentRow()
-        event_id = self.table.item(row, 0).text()
-        event_db = Event.get_by_id(event_id)
+        db_event = self.get_event()
         event_form = EventForm()
-        event_form.fill_the_form(event_db)
+        event_form.setup_ui()
+        event_form.set_data(db_event)
         event = event_form.exec()
         if event:
             data = event_form.get_data()
-            event_db.case_type = data['case_type']
-            event_db.number = data['number']
-            event_db.formation_date = data['formation_date']
-            event_db.incident_date = data['incident_date']
-            event_db.article = data['article']
-            event_db.address = data['address']
-            event_db.plot = data['plot']
-            event_db.update()
+            db_event.case_type = data['case_type']
+            db_event.number = data['number']
+            db_event.formation_date = data['formation_date']
+            db_event.incident_date = data['incident_date']
+            db_event.article = data['article']
+            db_event.address = data['address']
+            db_event.plot = data['plot']
+            db_event.update()
         self.fill_the_table(Event.get_all())
-        self.table.selectRow(row)
+        self.select_row(db_event)
 
-    def delete_event(self):
-        event_id = self.table.item(self.table.currentRow(), 0).text()
-        research = Research.get_by_event(event_id)
+    def delete_event(self) -> None:
+        db_event = self.get_event()
+        research = Research.get_by_event(db_event.id)
         if research:
             message = ErrorWidget(
                 text='Это событие связано с направлением на исследование, удаление невозможно.',
                 title='Ошибка удаления'
             )
             message.exec()
+            self.select_row(db_event)
             return
-        event = Event.get_by_id(event_id)
-        event.delete()
+        db_event.delete()
         self.fill_the_table(Event.get_all())

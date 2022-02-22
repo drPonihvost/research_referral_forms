@@ -1,9 +1,9 @@
-from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QMainWindow, QTabWidget
+from PySide2.QtCore import Slot
+from PySide2.QtWidgets import QMainWindow, QTabWidget
 
 from base_widgets import BaseWidget
 from models import PersonToCheck, Research
-from person_to_check_widget import PersonToCheckWidget
+from person_to_check_widget_group.person_to_check_widget import PersonToCheckWidget
 from research_widget import ResearchWidget
 
 

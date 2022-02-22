@@ -1,7 +1,9 @@
-from PySide6.QtWidgets import QPushButton, QTableWidgetItem, QVBoxLayout, QHBoxLayout
+from typing import List
+
+from PySide2.QtWidgets import QPushButton, QTableWidgetItem, QVBoxLayout, QHBoxLayout
 
 from base_widgets import PersonTableForWizard, BaseWidget
-from person_to_check_form import PersonToCheckForm
+from person_to_check_widget_group.person_to_check_form import PersonToCheckForm
 from models import PersonToCheck
 
 
@@ -52,7 +54,7 @@ class PersonToCheckWidgetForWizard(BaseWidget):
         self.edit_person_pb.setEnabled(enabled)
         self.delete_person_pb.setEnabled(enabled)
 
-    def fill_the_table(self, persons: list[PersonToCheck]):
+    def fill_the_table(self, persons: List[PersonToCheck]):
         self.table.setRowCount(0)
         if not persons:
             return

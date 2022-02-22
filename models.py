@@ -1,5 +1,7 @@
 import os
+import json
 from datetime import datetime
+from typing import List
 
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, Boolean, UniqueConstraint, or_
 from sqlalchemy.ext.declarative import declarative_base
@@ -37,7 +39,11 @@ class BaseModel(Base):
 
     @staticmethod
     def update():
-        session.commit()
+        try:
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            raise e
 
     def delete(self, commit=True):
         session.delete(self)
@@ -105,8 +111,6 @@ class Research(BaseModel):
         return 'Да' if self.related_search else 'Нет'
 
 
-
-
 class Person(BaseModel):
     __abstract__ = True
     surname = Column(String)
@@ -148,7 +152,10 @@ class Division(BaseModel):
     __table_args__ = (UniqueConstraint('division_red_name', 'person', name='_division_person'),)
     division_full_name = Column(String)
     division_red_name = Column(String)
+    division_address = Column(String)
+    phone = Column(String)
     person = Column(String)
+    central = Column(Boolean, default=False)
 
     @classmethod
     def get_by_full_and_red_name(cls, division_red_name, division_full_name, person):
@@ -243,16 +250,59 @@ class Event(BaseModel):
         return case[self.case_type] + self.number
 
     @classmethod
-    def get_event_by_data(cls, case_type, number, formation_date: DateTime):
+    def get_event_by_data(cls, case_type, number, formation_date: datetime):
         return session.query(cls).filter(cls.case_type == case_type,
                                          cls.number == number,
                                          cls.formation_date == formation_date).first()
 
+    @classmethod
+    def get_all_by_case(cls, case: str) -> List or None:
+        return session.query(cls).filter_by(case_type=case).all()
+
+    @classmethod
+    def get_other_by_number(cls, number):
+        return session.query(cls).filter(cls.case_type == 'other',
+                                         cls.number == number).all()
+
+
+def convert_date(date: str) -> datetime:
+    f = '%d.%m.%Y'
+    return datetime.strptime(date, f)
+
+
+def load_json():
+    with open('initial_data.json', 'r', encoding='utf-8') as json_data:
+        data = json.load(json_data)
+        return data['orm']
+
 
 def init_db():
+    off_person_class = dict(
+        addressee=Addressee,
+        initiator=Initiator,
+        executor=Executor
+    )
     path = os.path.dirname(__file__)
     if not os.path.exists(f'{path}\\{DATABASE_NAME}'):
         Base.metadata.create_all(engine)
+        for division in load_json()['division']:
+            Division(**division).save()
+        for off_person in load_json()['off_person']:
+            division = off_person['division']
+            off_person_class[off_person['division']['person']](
+                surname=off_person['surname'],
+                name=off_person['name'],
+                patronymic=off_person['patronymic'],
+                post=off_person['post'],
+                rank=off_person['rank'],
+                division=Division(**division)
+            ).save()
+        for event in load_json()['event']:
+            Event(
+                number=event['number'],
+                formation_date=convert_date(event['formation_date']),
+                case_type=event['case_type']
+            ).save()
     else:
         Base.metadata.create_all(engine)
 

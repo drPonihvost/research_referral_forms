@@ -1,15 +1,13 @@
-from PySide6.QtGui import QFont, QGuiApplication, QPixmap, QIcon
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QDialog, QFormLayout, QLineEdit, \
-    QPlainTextEdit, QTableWidget, \
-    QAbstractItemView
+import json
+import os
 
-CASE = ('105. Убийство',
-        '106. Убийство матерью новорожденного ребенка',
-        '107. Убийство, совершенное в состоянии аффекта',
-        '108. Убийство, совершенное при превышении пределов необходимой обороны либо при превышении мер, необходимых для задержания лица, совершившего преступление',
-        '109. Причинение смерти по неосторожности',
-        'Статья отсутствует'
-    )
+from datetime import datetime
+
+from PySide2.QtCore import QRegularExpression
+from PySide2.QtGui import QFont, QGuiApplication, QRegularExpressionValidator, QMouseEvent
+from PySide2.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QDialog, QFormLayout, QLineEdit, \
+    QPlainTextEdit, QTableWidget, \
+    QAbstractItemView, QComboBox
 
 
 class BaseWidget(QWidget):
@@ -48,12 +46,56 @@ class BaseForm(QDialog, BaseWidget):
         self.cancel_button.clicked.connect(self.reject)
 
 
+class ArticleCombo(QComboBox, BaseWidget):
+    def __init__(self):
+        super().__init__()
+        self.setMaximumWidth(350)
+        self.addItems(self.get_config())
+
+    @staticmethod
+    def get_config():
+        with open(os.path.join(os.path.dirname(__file__), 'initial_data.json'), 'r', encoding='utf-8') as json_data:
+            data = json.load(json_data)['config']['case']
+            return data
+
+
 class LineEditWithTip(QLineEdit, BaseWidget):
     def __init__(self, tip: str = ''):
         super().__init__()
         self.tip = tip
         self.setPlaceholderText(tip)
         self.setFont(QFont("Times New Roman", 10, QFont.Cursive))
+
+
+class LineEditForCriminalCase(QLineEdit, BaseWidget):
+    def __init__(self):
+        super().__init__()
+        reg_ex = QRegularExpression(r"\d{17}")
+        input_validator = QRegularExpressionValidator(reg_ex, self)
+        self.setValidator(input_validator)
+
+
+class DateLineEdit(QLineEdit, BaseWidget):
+    def __init__(self):
+        super().__init__()
+        self.setInputMask("00.00.0000")
+        self.setMaximumWidth(120)
+
+    def mousePressEvent(self, arg__1: QMouseEvent) -> None:
+        super().mousePressEvent(arg__1)
+        self.home(False)
+
+    def get_date(self) -> datetime or None:
+        try:
+            date = datetime.strptime(self.text(), '%d.%m.%Y')
+            return date
+        except ValueError:
+            return
+
+    def set_date(self, date: datetime or None) -> None:
+        self.setText('')
+        if date:
+            self.setText(date.strftime('%d.%m.%Y'))
 
 
 class PlainTextEditTabAction(QPlainTextEdit, BaseWidget):

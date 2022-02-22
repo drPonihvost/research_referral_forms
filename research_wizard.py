@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from PySide6.QtWidgets import QWizard, QWizardPage, QVBoxLayout, QLineEdit
+from PySide2.QtWidgets import QWizard, QWizardPage, QVBoxLayout, QLineEdit
 
 from base_widgets import BaseWidget
-from event_widget import EventWidget
-from person_to_check_widget_for_wizard import PersonToCheckWidgetForWizard
+from event_widget_group.event_widget import EventWidget
+from person_to_check_widget_group.person_to_check_widget_for_wizard import PersonToCheckWidgetForWizard
 from models import Research, Event
 
 
@@ -85,19 +85,12 @@ class EventPage(QWizardPage, BaseWidget):
 
     def select_row(self):
         if self.research:
-            for row in range(self.widget.table.rowCount()):
-                if self.widget.table.item(row, 0).text() == str(self.research.event.id):
-                    self.widget.table.selectRow(row)
-                    return
+            self.widget.set_data(self.research.event)
 
     def edit_research(self):
         self.research.date_of_recording = self.convert_date(self.date_of_record)
         self.research.date_of_change = datetime.utcnow()
         self.research.event = self.get_event()
-        self.research.initiator_id = None
-        self.research.addressee_id = None
-        self.research.executor_id = None
-        self.research.date_of_dispatch = None
         self.research.update()
 
     def add_research(self):
