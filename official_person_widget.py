@@ -60,7 +60,7 @@ class OfficialPersonWidget(BaseWidget):
             self.table.insertRow(row)
             self.table.setItem(row, 0, QTableWidgetItem(official_person.create_name_reduction()))
             self.table.setItem(row, 1, QTableWidgetItem(official_person.division.division_red_name))
-            self.table.setItem(row, 2, QTableWidgetItem(official_person.post.capitalize()))
+            self.table.setItem(row, 2, QTableWidgetItem(official_person.post[0].upper() + official_person.post[1::]))
             self.table.setItem(row, 3, QTableWidgetItem(official_person.rank.lower()))
             self.table.setItem(row, 4, QTableWidgetItem(official_person.division.division_full_name))
             self.table.setItem(row, 5, QTableWidgetItem(str(official_person.id)))

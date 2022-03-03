@@ -67,6 +67,7 @@ class PersonToCheckForm(BaseForm):
         self.patronymic_le.textChanged.connect(self.activate_button)
         self.birthday_le.textChanged.connect(self.activate_button)
         self.birthplace_le.textChanged.connect(self.activate_button)
+        self.related_le.textChanged.connect(self.activate_button)
 
         # action
         self.center_and_set_the_size(0.25, 0)
@@ -80,7 +81,6 @@ class PersonToCheckForm(BaseForm):
 
     def activate_button(self) -> None:
         self.add_button.setEnabled(False)
-        print(self.validate_field())
         if self.validate_field():
             self.add_button.setEnabled(True)
 
