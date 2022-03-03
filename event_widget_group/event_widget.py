@@ -11,6 +11,7 @@ from models import Event, Research
 class EventWidget(BaseWidget):
     def __init__(self):
         super().__init__()
+        self.set_window_config()
 
         # layout
         self.main_layout = QVBoxLayout()

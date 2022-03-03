@@ -9,6 +9,7 @@ from models import Division, Initiator, Addressee, Executor
 class OfficialPersonForm(BaseForm):
     def __init__(self, person: str = 'initiator'):
         super().__init__()
+        self.set_window_config()
 
         self.persons = dict(
             initiator=Initiator,

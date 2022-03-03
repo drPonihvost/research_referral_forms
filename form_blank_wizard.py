@@ -9,6 +9,7 @@ from models import Research
 class FormBlankWizard(QWizard, BaseWidget):
     def __init__(self, research_id):
         super().__init__()
+        self.set_window_config()
         self.setWizardStyle(QWizard.ModernStyle)
         self.research = Research.get_by_id(research_id)
         self.addPage(OfficialPersonPage(self.research.initiator_id, 'initiator'))

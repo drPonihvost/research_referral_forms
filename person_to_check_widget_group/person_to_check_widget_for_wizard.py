@@ -10,6 +10,7 @@ from models import PersonToCheck
 class PersonToCheckWidgetForWizard(BaseWidget):
     def __init__(self, research):
         super().__init__()
+        self.set_window_config()
         self.research = research
         # layout
         self.main_layout = QVBoxLayout()

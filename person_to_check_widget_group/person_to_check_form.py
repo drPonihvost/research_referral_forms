@@ -24,6 +24,7 @@ class PersonToCheckForm(BaseForm):
     def __init__(self, research):
         super().__init__()
         self._research = research
+        self.set_window_config()
 
         # layout
         self.gender_layout = QHBoxLayout()

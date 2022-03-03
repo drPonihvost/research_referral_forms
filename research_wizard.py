@@ -11,6 +11,7 @@ from models import Research, Event
 class ResearchWizard(QWizard, BaseWidget):
     def __init__(self, research=None, related=False):
         super().__init__()
+        self.set_window_config()
         self.research = research
         self.related = related
         if research:

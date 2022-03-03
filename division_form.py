@@ -7,6 +7,7 @@ from models import Division
 class DivisionForm(BaseForm):
     def __init__(self, person: str, division: Division = None) -> None:
         super().__init__()
+        self.set_window_config()
         self.person = person
         self.division = division
 

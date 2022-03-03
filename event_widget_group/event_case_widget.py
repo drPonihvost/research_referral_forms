@@ -23,6 +23,7 @@ class EventCaseWidget(BaseWidget):
         self.address_le = LineEditWithTip()
 
     def setup_ui(self, case_type: str) -> None:
+        self.set_window_config()
         if case_type == 'criminal':
             self.number_le = LineEditForCriminalCase()
         else:

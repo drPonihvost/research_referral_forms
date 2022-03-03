@@ -10,8 +10,9 @@ from research_widget import ResearchWidget
 class MainWindow(QMainWindow, BaseWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('Направления - исследование ДНК')
+        self.set_window_config()
         self.center_and_set_the_size(0.9, 0.8)
+
 
         # widgets
         self.research_widget = ResearchWidget()

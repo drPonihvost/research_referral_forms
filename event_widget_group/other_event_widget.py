@@ -12,6 +12,7 @@ class OtherCaseWidget(BaseWidget):
         super().__init__()
         self._article = 'Статья отсутствует'
         self._tip = 'Приказ МВД по РХ № 553'
+        self.set_window_config()
 
         # layout
         self.form_layout = QFormLayout()

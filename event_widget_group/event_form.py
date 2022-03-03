@@ -24,6 +24,7 @@ class EventForm(BaseForm):
 
     def setup_ui(self):
         # configuration
+        self.set_window_config()
         self.button_layout.addWidget(self.add_button)
         self.button_layout.addWidget(self.cancel_button)
         for element in enumerate(self.create_rpb_config()):

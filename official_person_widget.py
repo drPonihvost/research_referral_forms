@@ -9,6 +9,7 @@ from models import Initiator, Executor, Addressee, Research
 class OfficialPersonWidget(BaseWidget):
     def __init__(self, person):
         super().__init__()
+        self.set_window_config()
         _TABLE = dict(
             initiator=Initiator,
             executor=Executor,

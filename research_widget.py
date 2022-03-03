@@ -23,6 +23,7 @@ from html_templates import HTML_PERSON
 class ResearchWidget(BaseWidget):
     def __init__(self):
         super().__init__()
+        self.set_window_config()
         # layout
         self.main_layout = QVBoxLayout()
         self.button_layout = QHBoxLayout()

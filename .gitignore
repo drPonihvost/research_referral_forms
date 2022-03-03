@@ -1,7 +1,7 @@
 venv
 dist
 build
-main.spec
+ResearchReferralForm.spec
 research_blanks
 db_SQLite3.db
 .idea
