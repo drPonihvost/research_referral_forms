@@ -54,10 +54,10 @@ class DivisionForm(BaseForm):
         return Division(**self.get_data_from_form()).save()
 
     def edit_division(self) -> Division:
-        self.division.division_full_name = self.division_full_name_pte.toPlainText(),
-        self.division.division_red_name = self.division_red_name_pte.toPlainText(),
-        self.division.division_address = self.division_address_le.text(),
-        self.division.phone = self.division_phone_le.text(),
+        self.division.division_full_name = self.division_full_name_pte.toPlainText()
+        self.division.division_red_name = self.division_red_name_pte.toPlainText()
+        self.division.division_address = self.division_address_le.text()
+        self.division.phone = self.division_phone_le.text()
         self.division.person = self.person
         self.division.update()
         return self.division

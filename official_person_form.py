@@ -171,15 +171,7 @@ class OfficialPersonForm(BaseForm):
         division_form_dialog.set_data_in_form()
         event = division_form_dialog.exec()
         if event:
-            division = division_form_dialog.check_for_uniqueness()
-            if not division:
-                division_form_dialog.edit_division()
-            else:
-                message = ErrorWidget(
-                    text='Такая запись уже существует',
-                    title='Ошибка редактирования'
-                )
-                message.exec()
+            division_form_dialog.edit_division()
         self.fill_combo_box()
 
     def delete_division(self):

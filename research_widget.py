@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 from typing import List
@@ -233,12 +234,19 @@ class ResearchWidget(BaseWidget):
             person.update()
 
     @staticmethod
-    def get_data_by_pdf(research: Research, persons_to_check: List[PersonToCheck]) -> dict:
+    def load_json():
+        with open('initial_data.json', 'r', encoding='utf-8') as json_data:
+            data = json.load(json_data)
+            return data['config']
+
+    def get_data_by_pdf(self, research: Research, persons_to_check: List[PersonToCheck]) -> dict:
         persons = persons_to_check
+        data = self.load_json()
+        name = data['regional']['name']
+        if research.initiator.division.central:
+            name = data['central']['name']
         return dict(
-            name='МВД РОССИИ',
-            regional_department='МИНИСТЕРСТВО ВНУТРЕННИХ ДЕЛ РОССИИ ПО РЕСПУБЛИКЕ ХАКАСИЯ',
-            department_address='',
+            name=name,
             research=research,
             persons=persons
         )
@@ -259,10 +267,10 @@ class ResearchWidget(BaseWidget):
             if status:
                 param = QPageLayout(QPageSize(QPageSize.A4), QPageLayout.Portrait, QMarginsF())
                 param.setUnits(QPageLayout.Millimeter)
-                param.setRightMargin(20.0)
-                param.setLeftMargin(20.0)
+                param.setRightMargin(10.0)
+                param.setLeftMargin(30.0)
                 param.setTopMargin(20.0)
-                param.setBottomMargin(15.0)
+                param.setBottomMargin(20.0)
                 page.printToPdf(research.dir_path + f'\\{research.file_name}.pdf', param)
         page.loadFinished.connect(handle_load_finished)
 
