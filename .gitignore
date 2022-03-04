@@ -1,9 +1,9 @@
 venv
 dist
 build
-main.spec
+ResearchReferralForm.spec
 research_blanks
-test_db.db
+db_SQLite3.db
 .idea
 *.pyc
 __pycache__/

@@ -1,14 +1,21 @@
-from PySide6.QtWidgets import QHBoxLayout, QComboBox, QPushButton, QLabel
+from PySide2.QtWidgets import QHBoxLayout, QComboBox, QPushButton, QLabel
 
 from base_widgets import BaseForm, LineEditWithTip
 from division_form import DivisionForm
 from error_widget import ErrorWidget
-from models import Division
+from models import Division, Initiator, Addressee, Executor
 
 
 class OfficialPersonForm(BaseForm):
     def __init__(self, person: str = 'initiator'):
         super().__init__()
+        self.set_window_config()
+
+        self.persons = dict(
+            initiator=Initiator,
+            addressee=Addressee,
+            executor=Executor
+        )
 
         self.person = person
 
@@ -69,14 +76,40 @@ class OfficialPersonForm(BaseForm):
 
         # signal
         self.add_division_button.clicked.connect(self.add_division)
+        self.add_division_button.clicked.connect(self.activate_button)
         self.edit_division_button.clicked.connect(self.edit_division)
+        self.edit_division_button.clicked.connect(self.activate_button)
         self.delete_division_button.clicked.connect(self.delete_division)
+        self.delete_division_button.clicked.connect(self.activate_button)
+        self.division_cb.activated.connect(self.activate_button)
+        self.surname_le.textChanged.connect(self.activate_button)
+        self.name_le.textChanged.connect(self.activate_button)
+        self.patronymic_le.textChanged.connect(self.activate_button)
+        self.post_le.textChanged.connect(self.activate_button)
+        self.rank_le.textChanged.connect(self.activate_button)
 
         # action
         self.fill_combo_box()
         self.division = self.get_division()
+        self.activate_button()
 
     # slots
+    def activate_button(self):
+        enable = True if self.division_cb.currentText() else False
+        self.edit_division_button.setEnabled(enable)
+        self.delete_division_button.setEnabled(enable)
+        self.add_button.setEnabled(enable and not self.field_validator())
+
+    def field_validator(self) -> bool:
+        fields = [
+            True if self.surname_le.text() else False,
+            True if self.name_le.text() else False,
+            True if self.patronymic_le.text() else False,
+            True if self.post_le.text() else False,
+            True if self.rank_le.text() else False
+        ]
+        return False in fields
+
     def fill_combo_box(self):
         self.division_cb.clear()
         divisions = Division.get_by_person(self.person)
@@ -98,7 +131,7 @@ class OfficialPersonForm(BaseForm):
             self.division_cb.currentText(),
             self.person
         )
-        return division if division else None
+        return division
 
     def get_data(self):
         division = self.get_division()
@@ -119,19 +152,12 @@ class OfficialPersonForm(BaseForm):
         )
 
     def add_division(self):
-        division_form_dialog = DivisionForm()
+        division_form_dialog = DivisionForm(division=self.get_division(), person=self.person)
         event = division_form_dialog.exec()
         if event:
-            division = Division.get_by_red_name(
-                division_form_dialog.division_red_name.toPlainText(),
-                self.person
-            )
+            division = division_form_dialog.check_for_uniqueness()
             if not division:
-                Division(
-                    division_full_name=division_form_dialog.division_full_name.toPlainText(),
-                    division_red_name=division_form_dialog.division_red_name.toPlainText(),
-                    person=self.person
-                ).save()
+                division_form_dialog.add_division()
             else:
                 message = ErrorWidget(
                     text='Такая запись уже существует',
@@ -141,22 +167,22 @@ class OfficialPersonForm(BaseForm):
         self.fill_combo_box()
 
     def edit_division(self):
-        division_form_dialog = DivisionForm()
-        division = Division.get_by_red_name(self.division_cb.currentText(), self.person)
-        division_form_dialog.division_full_name.setPlainText(division.division_full_name)
-        division_form_dialog.division_red_name.setPlainText(division.division_red_name)
+        division_form_dialog = DivisionForm(division=self.get_division(), person=self.person)
+        division_form_dialog.set_data_in_form()
         event = division_form_dialog.exec()
         if event:
-            division.division_full_name = division_form_dialog.division_full_name.toPlainText()
-            division.division_red_name = division_form_dialog.division_red_name.toPlainText()
-            division.save()
+            division_form_dialog.edit_division()
         self.fill_combo_box()
-        return division
 
     def delete_division(self):
         division = Division.get_by_red_name(self.division_cb.currentText(), self.person)
-        division.delete()
+        person = self.persons[self.person].get_by_division(division.id)
+        if not person:
+            division.delete()
+        else:
+            message = ErrorWidget(
+                text='''Подразделение не может быть удалено''',
+                title='Ошибка удаления'
+            )
+            message.exec()
         self.fill_combo_box()
-
-    def get_data_in_form(self):
-        pass

@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtWidgets import QApplication
+from PySide2.QtWidgets import QApplication
 
 from main_window import MainWindow
 from models import init_db
@@ -16,4 +16,4 @@ if __name__ == "__main__":
     init_db()
     w = Window()
     w.show()
-    sys.exit(app.exec())
+    sys.exit(app.exec_())

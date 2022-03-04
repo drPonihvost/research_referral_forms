@@ -1,13 +1,16 @@
-from PySide6.QtWidgets import QPushButton, QTableWidgetItem, QVBoxLayout, QHBoxLayout
+from typing import List
+
+from PySide2.QtWidgets import QPushButton, QTableWidgetItem, QVBoxLayout, QHBoxLayout
 
 from base_widgets import PersonTableForWizard, BaseWidget
-from person_to_check_form import PersonToCheckForm
+from person_to_check_widget_group.person_to_check_form import PersonToCheckForm
 from models import PersonToCheck
 
 
 class PersonToCheckWidgetForWizard(BaseWidget):
     def __init__(self, research):
         super().__init__()
+        self.set_window_config()
         self.research = research
         # layout
         self.main_layout = QVBoxLayout()
@@ -34,15 +37,25 @@ class PersonToCheckWidgetForWizard(BaseWidget):
 
         # signals
         self.add_button.clicked.connect(self.add_person)
+        self.add_button.clicked.connect(self.activate_button)
         self.edit_person_pb.clicked.connect(self.edit_person)
+        self.edit_person_pb.clicked.connect(self.activate_button)
         self.delete_person_pb.clicked.connect(self.delete_person)
+        self.delete_person_pb.clicked.connect(self.activate_button)
+        self.table.itemSelectionChanged.connect(self.activate_button)
 
         # actions
         self.table.resize_to_content()
         self.fill_the_table(PersonToCheck.get_by_research(self.research.id))
+        self.activate_button()
 
     # slots
-    def fill_the_table(self, persons: list[PersonToCheck]):
+    def activate_button(self):
+        enabled = True if self.table.selectionModel().selectedRows(0) else False
+        self.edit_person_pb.setEnabled(enabled)
+        self.delete_person_pb.setEnabled(enabled)
+
+    def fill_the_table(self, persons: List[PersonToCheck]):
         self.table.setRowCount(0)
         if not persons:
             return
@@ -54,9 +67,10 @@ class PersonToCheckWidgetForWizard(BaseWidget):
             self.table.setItem(row, 2, QTableWidgetItem(person.patronymic))
             self.table.setItem(row, 3, QTableWidgetItem(person.convert_date()))
             self.table.setItem(row, 4, QTableWidgetItem(person.get_gender()))
-            self.table.setItem(row, 5, QTableWidgetItem(person.birthplace))
-            self.table.setItem(row, 6, QTableWidgetItem(person.reg_place))
-            self.table.setItem(row, 7, QTableWidgetItem(str(person.id)))
+            self.table.setItem(row, 5, QTableWidgetItem(person.related))
+            self.table.setItem(row, 6, QTableWidgetItem(person.birthplace))
+            self.table.setItem(row, 7, QTableWidgetItem(person.reg_place))
+            self.table.setItem(row, 8, QTableWidgetItem(str(person.id)))
         self.table.resize_to_content()
 
     def add_person(self):
@@ -68,7 +82,7 @@ class PersonToCheckWidgetForWizard(BaseWidget):
         self.fill_the_table(PersonToCheck.get_by_research(self.research.id))
 
     def edit_person(self):
-        person_id = self.table.item(self.table.currentRow(), 7).text()
+        person_id = self.table.item(self.table.currentRow(), 8).text()
         person = PersonToCheck.get_by_id(person_id)
         person_to_check_form = PersonToCheckForm(person.research)
         person_to_check_form.fill_the_form(person)
@@ -81,12 +95,13 @@ class PersonToCheckWidgetForWizard(BaseWidget):
             person.male = data['male']
             person.birthday = data['birthday']
             person.birthplace = data['birthplace']
+            person.related = data['related']
             person.reg_place = data['reg_place']
             person.update()
         self.fill_the_table(PersonToCheck.get_by_research(self.research.id))
 
     def delete_person(self):
-        person_id = self.table.item(self.table.currentRow(), 7).text()
+        person_id = self.table.item(self.table.currentRow(), 8).text()
         person = PersonToCheck.get_by_id(person_id)
         person.delete()
         self.fill_the_table(PersonToCheck.get_by_research(self.research.id))

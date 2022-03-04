@@ -1,13 +1,15 @@
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
+from PySide2.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
 
 from base_widgets import BaseWidget, OfficialPersonTable
+from error_widget import ErrorWidget
 from official_person_form import OfficialPersonForm
-from models import Initiator, Executor, Addressee
+from models import Initiator, Executor, Addressee, Research
 
 
 class OfficialPersonWidget(BaseWidget):
     def __init__(self, person):
         super().__init__()
+        self.set_window_config()
         _TABLE = dict(
             initiator=Initiator,
             executor=Executor,
@@ -59,7 +61,7 @@ class OfficialPersonWidget(BaseWidget):
             self.table.insertRow(row)
             self.table.setItem(row, 0, QTableWidgetItem(official_person.create_name_reduction()))
             self.table.setItem(row, 1, QTableWidgetItem(official_person.division.division_red_name))
-            self.table.setItem(row, 2, QTableWidgetItem(official_person.post.capitalize()))
+            self.table.setItem(row, 2, QTableWidgetItem(official_person.post[0].upper() + official_person.post[1::]))
             self.table.setItem(row, 3, QTableWidgetItem(official_person.rank.lower()))
             self.table.setItem(row, 4, QTableWidgetItem(official_person.division.division_full_name))
             self.table.setItem(row, 5, QTableWidgetItem(str(official_person.id)))
@@ -101,6 +103,14 @@ class OfficialPersonWidget(BaseWidget):
 
     def delete_official_person(self):
         official_person = self.base_class.get_by_id(self.table.selectedItems()[5].text())
-        official_person.delete()
+        if not Research.get_by_off_person(official_person.id):
+            official_person.delete()
+        else:
+            message = ErrorWidget(
+                text='''Должностное лицо указано в существующем направлении,
+                удаление невозможно''',
+                title='Ошибка удаления'
+            )
+            message.exec()
         self.fill_the_table()
         self.activate_button()

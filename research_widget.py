@@ -1,17 +1,20 @@
+import json
 import os
 import shutil
+from typing import List
 
 import qrcode
 
-from PySide6 import QtCore, QtPrintSupport, QtWebChannel, QtWebEngineCore
-from PySide6.QtCore import QMarginsF
-from PySide6.QtGui import QPageLayout, QPageSize
-from PySide6.QtWebEngineCore import QWebEnginePage
-from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
+from PySide2 import QtCore, QtPrintSupport, QtWebChannel, QtWebEngineCore
+from PySide2.QtCore import QMarginsF
+from PySide2.QtGui import QPageLayout, QPageSize
+from PySide2.QtWebEngineWidgets import QWebEnginePage
+from PySide2.QtWebEngineWidgets import QWebEngineView
+from PySide2.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QTableWidgetItem
 from jinja2 import Template
 
 from base_widgets import BaseWidget, ResearchTable
+from error_widget import ErrorWidget
 from form_blank_wizard import FormBlankWizard
 from research_wizard import ResearchWizard
 from models import Research, PersonToCheck
@@ -21,6 +24,7 @@ from html_templates import HTML_PERSON
 class ResearchWidget(BaseWidget):
     def __init__(self):
         super().__init__()
+        self.set_window_config()
         # layout
         self.main_layout = QVBoxLayout()
         self.button_layout = QHBoxLayout()
@@ -31,12 +35,14 @@ class ResearchWidget(BaseWidget):
 
         # buttons
         self.add_research_pb = QPushButton('Создать')
+        self.add_related_research_pb = QPushButton('Создать на родственника')
         self.change_research_pb = QPushButton('Изменить')
         self.form_research_pb = QPushButton('Сформировать')
         self.delete_research_pb = QPushButton('Удалить')
 
         # configuration
         self.button_layout.addWidget(self.add_research_pb)
+        self.button_layout.addWidget(self.add_related_research_pb)
         self.button_layout.addWidget(self.change_research_pb)
         self.button_layout.addWidget(self.form_research_pb)
         self.button_layout.addWidget(self.delete_research_pb)
@@ -48,16 +54,25 @@ class ResearchWidget(BaseWidget):
 
         # signals
         self.add_research_pb.clicked.connect(self.create_research)
+        self.add_related_research_pb.clicked.connect(self.created_related_research)
         self.change_research_pb.clicked.connect(self.edit_research)
         self.delete_research_pb.clicked.connect(self.delete_research)
         self.form_research_pb.clicked.connect(self.form_blank)
+        self.table.itemSelectionChanged.connect(self.activate_button)
 
         # actions
         self.table.resize_to_content()
         self.fill_the_table(Research.get_all())
+        self.activate_button()
 
     # slots
-    def fill_the_table(self, researches: list[Research]):
+    def activate_button(self):
+        enabled = True if self.table.selectionModel().selectedRows(0) else False
+        self.change_research_pb.setEnabled(enabled)
+        self.form_research_pb.setEnabled(enabled)
+        self.delete_research_pb.setEnabled(enabled)
+
+    def fill_the_table(self, researches: List[Research]):
         self.table.setRowCount(0)
         if not researches:
             return
@@ -76,23 +91,38 @@ class ResearchWidget(BaseWidget):
             self.table.setItem(row, 5, QTableWidgetItem(research.event.address))
             self.table.setItem(row, 6, QTableWidgetItem(research.event.plot))
             self.table.setItem(row, 7, QTableWidgetItem(research.event.article))
-            self.table.setItem(row, 8, QTableWidgetItem(str(persons_to_check_count)))
-            self.table.setItem(row, 9, QTableWidgetItem(research.convert_dispatch_date()))
-            self.table.setItem(row, 10, QTableWidgetItem(initiator))
-            self.table.setItem(row, 11, QTableWidgetItem(addressee))
-            self.table.setItem(row, 12, QTableWidgetItem(executor))
+            self.table.setItem(row, 8, QTableWidgetItem(research.get_related()))
+            self.table.setItem(row, 9, QTableWidgetItem(str(persons_to_check_count)))
+            self.table.setItem(row, 10, QTableWidgetItem(research.convert_dispatch_date()))
+            self.table.setItem(row, 11, QTableWidgetItem(initiator))
+            self.table.setItem(row, 12, QTableWidgetItem(addressee))
+            self.table.setItem(row, 13, QTableWidgetItem(executor))
         self.table.resize_to_content()
 
     def create_research(self):
         wizard = ResearchWizard()
         wizard.exec()
         self.fill_the_table(Research.get_all())
+        self.activate_button()
 
-    def edit_research(self):
-        research_id = self.table.item(self.table.currentRow(), 0).text()
-        wizard = ResearchWizard(research_id)
+    def created_related_research(self):
+        wizard = ResearchWizard(related=True)
         wizard.exec()
         self.fill_the_table(Research.get_all())
+        self.activate_button()
+
+    def edit_research(self):
+        research = Research.get_by_id(self.table.item(self.table.currentRow(), 0).text())
+        wizard = ResearchWizard(research)
+        event = wizard.exec()
+        if event:
+            research.initiator_id = None
+            research.addressee_id = None
+            research.executor_id = None
+            research.date_of_dispatch = None
+            research.update()
+        self.fill_the_table(Research.get_all())
+        self.activate_button()
 
     def delete_research(self):
         research_id = self.table.item(self.table.currentRow(), 0).text()
@@ -100,6 +130,7 @@ class ResearchWidget(BaseWidget):
         PersonToCheck.bulk_delete(persons_to_check)
         Research.delete(Research.get_by_id(research_id))
         self.fill_the_table(Research.get_all())
+        self.activate_button()
 
     def init_dispatch(self):
         research = None
@@ -124,7 +155,6 @@ class ResearchWidget(BaseWidget):
         return main_res_dir
 
     def create_research_dir(self, research):
-        # if not research.file_name:
         file_name = self.create_file_name(research)
         research_dir = os.path.dirname(__file__) + '\\research_blanks' + f'\\{file_name}'
         os.mkdir(research_dir)
@@ -145,10 +175,8 @@ class ResearchWidget(BaseWidget):
             self.create_research_dir(research)
 
     @staticmethod
-    def create_event_qr(research):
+    def create_event_qr(research: Research) -> None:
         event = research.event
-        if os.path.exists(research.dir_path + '\\event.png'):
-            os.remove(research.dir_path + '\\event.png')
         event_to_qr = event.number_to_string() + '*' + \
                       event.convert_formation_date() + '*' + \
                       event.convert_incident_date() + '*' + \
@@ -160,10 +188,36 @@ class ResearchWidget(BaseWidget):
         img.save(research.dir_path + '\\event.png')
 
     @staticmethod
-    def create_person_qr(research: Research, persons_to_check: list[PersonToCheck]) -> None:
+    def create_initiator_qr(research: Research) -> None:
+        initiator = research.initiator
+        initiator_to_qr = initiator.division.division_full_name + '*' + \
+                          initiator.division.division_red_name + '*' + \
+                          initiator.surname + '*' + \
+                          initiator.name + '*' + \
+                          initiator.patronymic + '*' + \
+                          initiator.post + '*' + \
+                          initiator.rank
+        initiator_to_qr = initiator_to_qr.encode('utf-8')
+        img = qrcode.make(initiator_to_qr)
+        img.save(research.dir_path + '\\initiator.png')
+
+    @staticmethod
+    def create_executor_qr(research: Research) -> None:
+        executor = research.executor
+        executor_to_qr = executor.division.division_full_name + '*' + \
+                         executor.division.division_red_name + '*' + \
+                         executor.surname + '*' + \
+                         executor.name + '*' + \
+                         executor.patronymic + '*' + \
+                         executor.post + '*' + \
+                         executor.rank
+        executor_to_qr = executor_to_qr.encode('utf-8')
+        img = qrcode.make(executor_to_qr)
+        img.save(research.dir_path + '\\executor.png')
+
+    @staticmethod
+    def create_person_qr(research: Research, persons_to_check: List[PersonToCheck]) -> None:
         persons_dir = research.dir_path + '\\person'
-        if os.path.exists(persons_dir):
-            shutil.rmtree(persons_dir)
         os.mkdir(persons_dir)
         for person in persons_to_check:
             filename = f'{person.id}_{person.create_name_reduction()}_{person.convert_date()}.png'
@@ -180,67 +234,64 @@ class ResearchWidget(BaseWidget):
             person.update()
 
     @staticmethod
-    def get_data_by_pdf(research: Research, persons_to_check: list[PersonToCheck]) -> dict:
+    def load_json():
+        with open('initial_data.json', 'r', encoding='utf-8') as json_data:
+            data = json.load(json_data)
+            return data['config']
+
+    def get_data_by_pdf(self, research: Research, persons_to_check: List[PersonToCheck]) -> dict:
         persons = persons_to_check
+        data = self.load_json()
+        name = data['regional']['name']
+        if research.initiator.division.central:
+            name = data['central']['name']
         return dict(
-            name='МВД РОССИИ',
-            regional_department='МВД РОССИИ ПО РЕСПУБЛИКЕ ХАКАСИЯ',
-            full_name_of_department=research.initiator.division.division_full_name,
-            reduce_name_of_department=research.initiator.division.division_red_name,
-            department_address='',
-            addressees_post=research.addressee.post,
-            addressees_division=research.addressee.division.division_red_name,
-            addressees_rank=research.addressee.rank,
-            addressees_name=research.addressee.create_name_reduction(),
-            case=research.event.number_to_string(),
-            article='' if not research.event.article else research.event.article,
-            plot='' if not research.event.plot else research.event.plot,
-            event_date=research.event.convert_incident_date(),
-            event_address='' if not research.event.address else research.event.address,
-            plot_qr_image=research.dir_path + '\\event.png',
-            persons=persons,
-            person_count=PersonToCheck.get_count_by_research(research.id),
-            init_post=research.initiator.post,
-            init_rank=research.initiator.rank,
-            init_name=research.initiator.create_name_reduction()
+            name=name,
+            research=research,
+            persons=persons
         )
 
-    def fill_html_template(self, research: Research, template: str, persons_to_check: list[PersonToCheck]) -> str:
+    def fill_html_template(self, research: Research, template: str, persons_to_check: List[PersonToCheck]):
         data = self.get_data_by_pdf(research, persons_to_check)
         template = Template(template)
         rendered_page = template.render(**data)
         with open(research.dir_path + '\\' + research.file_name + '.html', "w", encoding="UTF-8") as fh:
             fh.write(rendered_page)
-        # return rendered_page
 
-    def create_pdf(self, research: Research, persons_to_check: list[PersonToCheck]) -> None:
+    def create_pdf(self, research: Research, persons_to_check: List[PersonToCheck]) -> None:
         self.fill_html_template(research, HTML_PERSON, persons_to_check)
-        # pdfkit.from_string(html, research.dir_path + f'\\{research.file_name}.pdf')
-
-
-
         page = QWebEnginePage()
         page.load(QtCore.QUrl.fromLocalFile(research.dir_path + f'\\{research.file_name}.html'))
-        # page.setHtml(html)
 
         def handle_load_finished(status):
             if status:
                 param = QPageLayout(QPageSize(QPageSize.A4), QPageLayout.Portrait, QMarginsF())
                 param.setUnits(QPageLayout.Millimeter)
-                param.setRightMargin(20.0)
-                param.setLeftMargin(20.0)
+                param.setRightMargin(10.0)
+                param.setLeftMargin(30.0)
                 param.setTopMargin(20.0)
-                param.setBottomMargin(15.0)
+                param.setBottomMargin(20.0)
                 page.printToPdf(research.dir_path + f'\\{research.file_name}.pdf', param)
-
         page.loadFinished.connect(handle_load_finished)
 
     def form_blank(self):
-        self.create_main_res_dir()
-        research = self.init_dispatch()
-        if research:
-            self.set_research_dir(research)
-            self.create_event_qr(research)
-            self.create_person_qr(research, PersonToCheck.get_by_research(research.id))
-            self.create_pdf(research, PersonToCheck.get_by_research(research.id))
-        self.fill_the_table(Research.get_all())
+        person_to_check = PersonToCheck.get_count_by_research(self.table.item(self.table.currentRow(), 0).text())
+        if not person_to_check:
+            message = ErrorWidget(
+                text='''Нельзя сформировать направление
+                без лиц''',
+                title='Ошибка формирования'
+            )
+            message.exec()
+        else:
+            self.create_main_res_dir()
+            research = self.init_dispatch()
+            if research:
+                self.set_research_dir(research)
+                self.create_event_qr(research)
+                self.create_initiator_qr(research)
+                self.create_executor_qr(research)
+                self.create_person_qr(research, PersonToCheck.get_by_research(research.id))
+                self.create_pdf(research, PersonToCheck.get_by_research(research.id))
+            self.fill_the_table(Research.get_all())
+        self.activate_button()
