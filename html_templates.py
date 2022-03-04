@@ -294,7 +294,7 @@ HTML_PERSON = '''
                <p>{{ research.initiator.post[0].upper() + research.initiator.post[1::] }}</p>
                <p>{{ research.initiator.division.division_red_name }}</p>
                <p>{{ research.initiator.rank }}</p>
-               <p>{{ research.date_of_dispatch }}</p>
+               <p>{{ research.convert_dispatch_date() }}</p>
             </div>
             <div class="signatures-initials">
                <div class="initials">
