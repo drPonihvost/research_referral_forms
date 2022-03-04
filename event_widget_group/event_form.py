@@ -126,5 +126,6 @@ class EventForm(BaseForm):
 
     def validate_date(self) -> str or None:
         data = self.get_data()
-        if data['incident_date'] > data['formation_date']:
-            return f'Дата происшествия не может быть позже даты формирования материалов'
+        if data['case_type'] != 'other':
+            if data['incident_date'] > data['formation_date']:
+                return f'Дата происшествия не может быть позже даты формирования материалов'

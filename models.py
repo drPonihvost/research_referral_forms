@@ -224,7 +224,7 @@ class Event(BaseModel):
     case_type = Column(String)
     number = Column(String)
     formation_date = Column(DateTime)
-    incident_date = Column(DateTime)
+    incident_date = Column(DateTime, default=None)
     article = Column(String)
     address = Column(String)
     plot = Column(String)
