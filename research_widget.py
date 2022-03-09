@@ -170,7 +170,9 @@ class ResearchWidget(BaseWidget):
         if not research.dir_path:
             self.create_research_dir(research)
             return
-        if os.path.exists(research.dir_path):
+        elif research.dir_path and not os.path.exists(research.dir_path):
+            self.create_research_dir(research)
+        elif os.path.exists(research.dir_path):
             shutil.rmtree(research.dir_path)
             self.create_research_dir(research)
 
