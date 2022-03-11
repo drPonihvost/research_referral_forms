@@ -2,7 +2,7 @@ from datetime import datetime
 
 from PySide2.QtWidgets import QWizard, QWizardPage, QVBoxLayout, QLineEdit
 
-from base_widgets import BaseWidget
+from base_widgets import BaseWidget, DateLineEdit
 from event_widget_group.event_widget import EventWidget
 from person_to_check_widget_group.person_to_check_widget_for_wizard import PersonToCheckWidgetForWizard
 from models import Research, Event
@@ -34,8 +34,7 @@ class ResearchPage(QWizardPage, BaseWidget):
     def __init__(self, research):
         super().__init__()
         self.research = research
-        self.date_le = QLineEdit()
-        self.date_le.setMaximumWidth(250)
+        self.date_le = DateLineEdit()
         self.setTitle('Установите дату создания направления:')
         self.registerField('date', self.date_le)
         self.layout = QVBoxLayout()
@@ -47,10 +46,10 @@ class ResearchPage(QWizardPage, BaseWidget):
             self.add_research()
 
     def add_research(self):
-        self.date_le.setText(datetime.utcnow().strftime('%d.%m.%Y'))
+        self.date_le.set_date(datetime.utcnow())
 
     def edit_research(self):
-        self.date_le.setText(self.research.convert_recording_date())
+        self.date_le.set_date(self.research.date_of_recording)
 
 
 class EventPage(QWizardPage, BaseWidget):
