@@ -166,6 +166,21 @@ class ResearchWidget(BaseWidget):
     def create_file_name(research):
         return f'{research.id}_{research.convert_dispatch_date()}_{research.event.number}_{research.executor.create_name_reduction()}'
 
+    def replace_research(self, path):
+        try:
+            shutil.rmtree(path)
+        except PermissionError:
+            error = ErrorWidget(
+                text='''Ошибка формирования pdf файла,
+                        возможно направление уже открыто
+                        в редакторе pdf. Закройте документ
+                        и нажмите OK''',
+                title='Ошибка'
+            )
+            error.exec()
+            if error:
+                self.replace_research(path)
+
     def set_research_dir(self, research):
         if not research.dir_path:
             self.create_research_dir(research)
@@ -173,7 +188,7 @@ class ResearchWidget(BaseWidget):
         elif research.dir_path and not os.path.exists(research.dir_path):
             self.create_research_dir(research)
         elif os.path.exists(research.dir_path):
-            shutil.rmtree(research.dir_path)
+            self.replace_research(research.dir_path)
             self.create_research_dir(research)
 
     @staticmethod
